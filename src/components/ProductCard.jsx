@@ -4,10 +4,13 @@ export default function ProductCard({ product }) {
   const { addToCart } = useCart()
 
   return (
-    <div className="bg-white p-4 rounded-2xl shadow">
+    <div className="bg-white p-4 rounded-2xl shadow hover:shadow-md transition">
       <div className="h-40 bg-gray-200 rounded mb-3" />
-      <h3 className="font-semibold">{product.name}</h3>
+      <h3 className="font-semibold line-clamp-1">{product.name}</h3>
       <p className="text-gray-600">₹{product.price}</p>
+      {product.category && (
+        <p className="text-xs text-gray-500">{product.category}</p>
+      )}
 
       <button
         onClick={() => addToCart(product)}
