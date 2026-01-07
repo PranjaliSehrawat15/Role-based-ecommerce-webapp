@@ -13,7 +13,9 @@ export default function Store() {
   useEffect(() => {
     const fetchProducts = async () => {
       const snap = await getDocs(collection(db, "products"))
-      setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+       console.log("PRODUCTS FROM FIRESTORE:", data) 
+        setProducts(data)
       setLoading(false)
     }
     fetchProducts()
@@ -39,29 +41,33 @@ export default function Store() {
       <Navbar />
 
       {/* Filters */}
-      <div className="px-6 py-4 flex flex-wrap gap-4 items-center border-b bg-white">
-        <select
-          value={category}
-          onChange={e => setCategory(e.target.value)}
-          className="border px-3 py-2 rounded-lg"
-        >
-          {categories.map(c => (
-            <option key={c} value={c}>
-              {c === "all" ? "All Categories" : c}
-            </option>
-          ))}
-        </select>
+<div className="px-6 py-4 flex flex-wrap gap-4 items-center border-b bg-white">
+  <select
+    value={category}
+    onChange={e => setCategory(e.target.value)}
+    className="border px-3 py-2 rounded-lg"
+  >
+    <option value="all">All Categories</option>
+    {categories
+      .filter(c => c !== "all")
+      .map(c => (
+        <option key={c} value={c}>
+          {c}
+        </option>
+      ))}
+  </select>
 
-        <select
-          value={sort}
-          onChange={e => setSort(e.target.value)}
-          className="border px-3 py-2 rounded-lg"
-        >
-          <option value="none">Sort by Price</option>
-          <option value="low">Low → High</option>
-          <option value="high">High → Low</option>
-        </select>
-      </div>
+  <select
+    value={sort}
+    onChange={e => setSort(e.target.value)}
+    className="border px-3 py-2 rounded-lg"
+  >
+    <option value="none">Sort by Price</option>
+    <option value="low">Low → High</option>
+    <option value="high">High → Low</option>
+  </select>
+</div>
+
 
       {/* Content */}
       <div className="p-6">
