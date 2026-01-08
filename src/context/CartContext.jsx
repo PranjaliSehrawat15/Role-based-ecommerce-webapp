@@ -2,14 +2,17 @@ import { createContext, useContext, useState } from "react"
 
 const CartContext = createContext()
 
-export const CartProvider = ({ children }) => {
+export const useCart = () => useContext(CartContext)
+
+export function CartProvider({ children }) {
   const [cart, setCart] = useState([])
 
+  // ADD TO CART
   const addToCart = (product) => {
-    setCart((prev) => {
-      const exists = prev.find((p) => p.id === product.id)
-      if (exists) {
-        return prev.map((p) =>
+    setCart(prev => {
+      const existing = prev.find(p => p.id === product.id)
+      if (existing) {
+        return prev.map(p =>
           p.id === product.id
             ? { ...p, qty: p.qty + 1 }
             : p
@@ -19,28 +22,49 @@ export const CartProvider = ({ children }) => {
     })
   }
 
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((p) => p.id !== id))
-  }
-
-  const updateQty = (id, qty) => {
-    if (qty <= 0) return
-    setCart((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, qty } : p
+  // INCREASE QTY
+  const increaseQty = (id) => {
+    setCart(prev =>
+      prev.map(p =>
+        p.id === id ? { ...p, qty: p.qty + 1 } : p
       )
     )
   }
 
-  const clearCart = () => setCart([])
+  // DECREASE QTY
+  const decreaseQty = (id) => {
+    setCart(prev =>
+      prev
+        .map(p =>
+          p.id === id ? { ...p, qty: p.qty - 1 } : p
+        )
+        .filter(p => p.qty > 0)
+    )
+  }
+
+  // REMOVE ITEM
+  const removeFromCart = (id) => {
+    setCart(prev => prev.filter(p => p.id !== id))
+  }
+
+  // TOTAL PRICE
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.qty,
+    0
+  )
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, updateQty, clearCart }}
+      value={{
+        cart,
+        addToCart,
+        increaseQty,
+        decreaseQty,
+        removeFromCart,
+        total
+      }}
     >
       {children}
     </CartContext.Provider>
   )
 }
-
-export const useCart = () => useContext(CartContext)
