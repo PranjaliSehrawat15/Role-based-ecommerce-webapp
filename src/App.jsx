@@ -66,8 +66,6 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
-      <Route path="/orders" element={<BuyerRoute><Orders /></BuyerRoute>} />
-      <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
 
       {/* Admin */}
       <Route
@@ -105,6 +103,7 @@ export default function App() {
           </AdminRoute>
         }
       />
+        <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
 
       {/* Buyer */}
       <Route
@@ -133,6 +132,7 @@ export default function App() {
           </BuyerRoute>
         }
       />
+        <Route path="/orders" element={<BuyerRoute><Orders /></BuyerRoute>} />
     </Routes>
   )
 }
