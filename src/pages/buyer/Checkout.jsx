@@ -1,79 +1,137 @@
-import Navbar from "../../components/layout/Navbar"
-import { useCart } from "../../context/CartContext"
 import { useNavigate } from "react-router-dom"
-import { addDoc, collection, serverTimestamp } from "firebase/firestore"
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  doc,
+  runTransaction
+} from "firebase/firestore"
+import Navbar from "../../components/layout/Navbar"
 import { db } from "../../firebase/firebase"
+import { useCart } from "../../context/CartContext"
 import { useAuth } from "../../context/AuthContext"
 
 export default function Checkout() {
-  const { cart, increaseQty, decreaseQty, removeFromCart, total } = useCart()
+  const { cart, increaseQty, decreaseQty, removeFromCart, clearCart, total } =
+    useCart()
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  if (cart.length === 0) {
-    return (
-      <>
-        <Navbar />
-        <div className="p-6 text-center text-gray-500">
-          Your cart is empty.
-        </div>
-      </>
-    )
-  }
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      alert("Please login again")
+      return
+    }
 
-  const placeOrder = async () => {
-    await addDoc(collection(db, "orders"), {
-      buyerId: user.uid,
-      buyerEmail: user.email,
-      items: cart.map(i => ({
-        id: i.id,
-        name: i.name,
-        price: i.price,
-        qty: i.qty,
-        image: i.image || ""
-      })),
-      total,
-      status: "placed",
-      createdAt: serverTimestamp()
-    })
+    if (cart.length === 0) {
+      alert("Cart is empty")
+      return
+    }
 
-    alert("Order placed successfully!")
-    navigate("/orders")
+    try {
+      await runTransaction(db, async (transaction) => {
+        /* ================= CHECK & REDUCE STOCK ================= */
+        for (const item of cart) {
+          const productRef = doc(db, "products", item.id)
+          const productSnap = await transaction.get(productRef)
+
+          if (!productSnap.exists()) {
+            throw new Error(`Product not found: ${item.name}`)
+          }
+
+          const currentStock = productSnap.data().stock ?? 0
+
+          if (currentStock < item.quantity) {
+            throw new Error(
+              `Not enough stock for ${item.name}. Available: ${currentStock}`
+            )
+          }
+
+          // 🔻 Reduce stock
+          transaction.update(productRef, {
+            stock: currentStock - item.quantity
+          })
+        }
+
+        /* ================= CREATE ORDER ================= */
+        const orderRef = doc(collection(db, "orders"))
+
+        transaction.set(orderRef, {
+          buyerId: user.uid,
+          buyerEmail: user.email,
+          items: cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image || ""
+          })),
+          total,
+          status: "placed",
+          createdAt: serverTimestamp()
+        })
+      })
+
+      // ✅ After successful transaction
+      clearCart()
+      navigate("/orders")
+    } catch (error) {
+      console.error("ORDER ERROR:", error)
+      alert(error.message)
+    }
   }
 
   return (
     <>
       <Navbar />
 
-      <div className="p-6 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+      <div className="max-w-5xl mx-auto p-6">
+        <h1 className="text-3xl font-bold mb-6">Checkout</h1>
 
-        <div className="space-y-4">
+        {cart.length === 0 && (
+          <p className="text-gray-500">Your cart is empty.</p>
+        )}
+
+        <div className="space-y-6">
           {cart.map(item => (
             <div
               key={item.id}
-              className="flex gap-4 items-center border p-4 rounded"
+              className="border rounded-xl p-4 flex items-center justify-between"
             >
-              <img
-                src={item.image}
-                alt={item.name}
-                className="h-20 w-20 object-cover rounded"
-              />
+              <div className="flex items-center gap-4">
+                <img
+                  src={item.image || "https://via.placeholder.com/80"}
+                  alt={item.name}
+                  className="h-20 w-20 object-cover rounded"
+                />
 
-              <div className="flex-1">
-                <h3 className="font-semibold">{item.name}</h3>
-                <p>₹{item.price}</p>
+                <div>
+                  <h3 className="font-semibold">{item.name}</h3>
+                  <p className="text-gray-600">₹{item.price}</p>
 
-                <div className="flex items-center gap-2 mt-2">
-                  <button onClick={() => decreaseQty(item.id)}>-</button>
-                  <span>{item.qty}</span>
-                  <button onClick={() => increaseQty(item.id)}>+</button>
+                  <div className="flex items-center gap-3 mt-2">
+                    <button
+                      onClick={() => decreaseQty(item.id)}
+                      className="border px-3 py-1 rounded"
+                    >
+                      -
+                    </button>
+
+                    <span>{item.quantity}</span>
+
+                    <button
+                      onClick={() => increaseQty(item.id)}
+                      className="border px-3 py-1 rounded"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <button
                 onClick={() => removeFromCart(item.id)}
-                className="text-red-500"
+                className="text-red-500 hover:underline"
               >
                 Remove
               </button>
@@ -81,18 +139,18 @@ export default function Checkout() {
           ))}
         </div>
 
-        <div className="mt-6 border-t pt-4 flex justify-between">
-          <h2 className="text-xl font-semibold">
-            Total: ₹{total}
-          </h2>
+        {cart.length > 0 && (
+          <div className="mt-8 flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Total: ₹{total}</h2>
 
-          <button
-            onClick={placeOrder}
-            className="bg-black text-white px-6 py-2 rounded"
-          >
-            Place Order
-          </button>
-        </div>
+            <button
+              onClick={handlePlaceOrder}
+              className="bg-black text-white px-6 py-3 rounded-lg"
+            >
+              Place Order
+            </button>
+          </div>
+        )}
       </div>
     </>
   )

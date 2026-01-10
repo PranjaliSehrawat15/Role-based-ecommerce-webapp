@@ -1,80 +1,29 @@
-// import { useEffect, useState } from "react"
-// import { collection, getDocs } from "firebase/firestore"
-// import { db } from "../../firebase/firebase"
-// import Navbar from "../../components/layout/Navbar"
-
-// export default function AdminOrders() {
-//   const [orders, setOrders] = useState([])
-
-//   useEffect(() => {
-//     const fetchOrders = async () => {
-//       const snap = await getDocs(collection(db, "orders"))
-//       setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-//     }
-
-//     fetchOrders()
-//   }, [])
-
-//   return (
-//     <>
-//       <Navbar />
-
-//       <div className="p-6">
-//         <h1 className="text-2xl font-bold mb-6">All Orders</h1>
-
-//         {orders.map(order => (
-//           <div
-//             key={order.id}
-//             className="border rounded p-4 mb-4"
-//           >
-//             <p className="font-semibold">
-//               Buyer: {order.buyerEmail}
-//             </p>
-
-//             <p>Total: ₹{order.total}</p>
-//             <p>Status: {order.status}</p>
-
-//             <ul className="mt-2 text-sm text-gray-600">
-//               {order.items.map((item, i) => (
-//                 <li key={i}>
-//                   {item.name} × {item.qty}
-//                 </li>
-//               ))}
-//             </ul>
-//           </div>
-//         ))}
-//       </div>
-//     </>
-//   )
-// }
-
 import { useEffect, useState } from "react"
-import { collection, getDocs, orderBy, query } from "firebase/firestore"
+import { collection, getDocs, orderBy, query, updateDoc, doc } from "firebase/firestore"
 import { db } from "../../firebase/firebase"
 import Navbar from "../../components/layout/Navbar"
+import Loader from "../../components/ui/Loader"
+
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const fetchOrders = async () => {
+    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"))
+    const snap = await getDocs(q)
+    setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    setLoading(false)
+  }
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const q = query(
-          collection(db, "orders"),
-          orderBy("createdAt", "desc")
-        )
-
-        const snap = await getDocs(q)
-        setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-      } catch (err) {
-        console.error(err)
-      }
-      setLoading(false)
-    }
-
     fetchOrders()
   }, [])
+
+  const updateStatus = async (orderId, status) => {
+    await updateDoc(doc(db, "orders", orderId), { status })
+    fetchOrders()
+  }
 
   return (
     <>
@@ -83,7 +32,7 @@ export default function Orders() {
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">All Orders</h1>
 
-        {loading && <p>Loading orders…</p>}
+    {loading && <Loader text="Fetching orders..." />}
 
         {!loading && orders.length === 0 && (
           <p className="text-gray-500">No orders found.</p>
@@ -95,19 +44,15 @@ export default function Orders() {
               key={order.id}
               className="border rounded-xl p-4 bg-white shadow"
             >
-              <div className="flex justify-between flex-wrap gap-2">
+              <div className="flex justify-between flex-wrap gap-3">
                 <div>
-                  <p className="font-semibold">
-                    Buyer: {order.buyerEmail}
-                  </p>
+                  <p className="font-semibold">Buyer: {order.buyerEmail}</p>
                   <p className="text-sm text-gray-500">
-                    Status: {order.status}
+                    Current Status: <b>{order.status}</b>
                   </p>
                 </div>
 
-                <p className="font-bold">
-                  Total: ₹{order.total}
-                </p>
+                <p className="font-bold">Total: ₹{order.total}</p>
               </div>
 
               <div className="mt-3">
@@ -115,11 +60,54 @@ export default function Orders() {
                 <ul className="list-disc pl-5 text-sm text-gray-700">
                   {order.items.map((item, idx) => (
                     <li key={idx}>
-                      {item.name} × {item.qty} (₹{item.price})
+                      {item.name} × {item.quantity ?? 1}
                     </li>
                   ))}
                 </ul>
               </div>
+
+              {/* STATUS CONTROLS */}
+<div className="mt-4 flex gap-2 flex-wrap">
+  {order.status !== "cancelled" && (
+    <>
+      <button
+        onClick={() => updateStatus(order.id, "placed")}
+        disabled={order.status === "delivered"}
+        className={`px-3 py-1 rounded border ${
+          order.status === "placed" ? "bg-black text-white" : ""
+        }`}
+      >
+        Placed
+      </button>
+
+      <button
+        onClick={() => updateStatus(order.id, "shipped")}
+        disabled={order.status === "delivered"}
+        className={`px-3 py-1 rounded border ${
+          order.status === "shipped" ? "bg-black text-white" : ""
+        }`}
+      >
+        Shipped
+      </button>
+
+      <button
+        onClick={() => updateStatus(order.id, "delivered")}
+        className={`px-3 py-1 rounded border ${
+          order.status === "delivered" ? "bg-black text-white" : ""
+        }`}
+      >
+        Delivered
+      </button>
+    </>
+  )}
+
+  {order.status === "cancelled" && (
+    <span className="text-red-600 font-semibold">
+      Order Cancelled by Buyer
+    </span>
+  )}
+</div>
+
             </div>
           ))}
         </div>

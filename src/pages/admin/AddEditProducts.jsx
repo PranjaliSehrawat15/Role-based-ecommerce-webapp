@@ -1,140 +1,3 @@
-// import { useEffect, useState } from "react"
-// import { addDoc, collection, doc, getDoc, updateDoc } from "firebase/firestore"
-// import { db } from "../../firebase/firebase"
-// import { useAuth } from "../../context/AuthContext"
-// import { useNavigate, useParams } from "react-router-dom"
-// import Navbar from "../../components/layout/Navbar"
-// import Sidebar from "../../components/layout/Sidebar"
-// import Input from "../../components/ui/Input"
-// import Button from "../../components/ui/Button"
-
-// export default function AddEditProducts() {
-//   const { user } = useAuth()
-//   const { id } = useParams()
-//   const navigate = useNavigate()
-
-//   const [name, setName] = useState("")
-//   const [price, setPrice] = useState("")
-//   const [category, setCategory] = useState("")
-//   const [description, setDescription] = useState("")
-//   const [image, setImage] = useState(null)
-//   const [imageUrl, setImageUrl] = useState("")
-//   const [uploading, setUploading] = useState(false)
-
-//   // 🔹 Cloudinary upload
-//   const uploadImage = async () => {
-//     if (!image) return imageUrl
-
-//     const formData = new FormData()
-//     formData.append("file", image)
-//     formData.append("upload_preset", "rolecart_unsigned") 
-//     setUploading(true)
-
-//     const res = await fetch(
-//       "https://api.cloudinary.com/v1_1/dn0lwg4sb/image/upload", 
-//       {
-//         method: "POST",
-//         body: formData,
-//       }
-//     )
-
-//     const data = await res.json()
-//     setUploading(false)
-
-//     return data.secure_url
-//   }
-
-//   // 🔹 Edit mode
-//   useEffect(() => {
-//     if (id) {
-//       const fetchProduct = async () => {
-//         const snap = await getDoc(doc(db, "products", id))
-//         if (snap.exists()) {
-//           const p = snap.data()
-//           setName(p.name)
-//           setPrice(p.price)
-//           setCategory(p.category)
-//           setDescription(p.description)
-//           setImageUrl(p.imageUrl || "")
-//         }
-//       }
-//       fetchProduct()
-//     }
-//   }, [id])
-
-//   const handleSave = async () => {
-//     if (!name || !price) return alert("Name & price required")
-
-//     const finalImageUrl = await uploadImage()
-
-//     if (id) {
-//       await updateDoc(doc(db, "products", id), {
-//         name,
-//         price: Number(price),
-//         category,
-//         description,
-//         imageUrl: finalImageUrl,
-//       })
-//       alert("Product updated")
-//     } else {
-//       await addDoc(collection(db, "products"), {
-//         name,
-//         price: Number(price),
-//         category,
-//         description,
-//         imageUrl: finalImageUrl,
-//         createdBy: user.uid,
-//         createdAt: Date.now(),
-//       })
-//       alert("Product added")
-//     }
-
-//     navigate("/admin/products")
-//   }
-
-//   return (
-//     <div className="flex">
-//       <Sidebar />
-//       <div className="flex-1">
-//         <Navbar />
-
-//         <div className="p-6 max-w-md space-y-3">
-//           <h2 className="text-xl font-bold">
-//             {id ? "Edit Product" : "Add Product"}
-//           </h2>
-
-//           <Input placeholder="Name" value={name} onChange={e => setName(e.target.value)} />
-//           <Input placeholder="Price" value={price} onChange={e => setPrice(e.target.value)} />
-//           <Input placeholder="Category" value={category} onChange={e => setCategory(e.target.value)} />
-//           <Input placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} />
-
-//           {/* Image input */}
-//           <input
-//             type="file"
-//             accept="image/*"
-//             onChange={e => setImage(e.target.files[0])}
-//           />
-
-//           {/* Preview */}
-//           {imageUrl && !image && (
-//             <img
-//               src={imageUrl}
-//               alt="preview"
-//               className="h-32 rounded"
-//             />
-//           )}
-
-//           {uploading && <p className="text-sm text-gray-500">Uploading image…</p>}
-
-//           <Button onClick={handleSave}>
-//             {id ? "Update Product" : "Save Product"}
-//           </Button>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import {
@@ -158,6 +21,7 @@ export default function AddEditProducts() {
     name: "",
     price: "",
     category: "",
+    stock: "",          // ✅ STOCK ADDED
     shortDesc: "",
     fullDesc: "",
     specs: "",
@@ -180,6 +44,7 @@ export default function AddEditProducts() {
           name: data.name || "",
           price: data.price || "",
           category: data.category || "",
+          stock: data.stock ?? "",        // ✅ LOAD STOCK
           shortDesc: data.shortDesc || "",
           fullDesc: data.fullDesc || "",
           specs: (data.specs || []).join(", "),
@@ -192,36 +57,35 @@ export default function AddEditProducts() {
   }, [id])
 
   /* ================= IMAGE UPLOAD (Cloudinary) ================= */
-const uploadImage = async () => {
-  if (!file) return form.image
+  const uploadImage = async () => {
+    if (!file) return form.image
 
-  // ❗ only allow images
-  if (!file.type.startsWith("image/")) {
-    alert("Please upload a valid IMAGE file (jpg, png, webp)")
-    return form.image
-  }
-
-  const data = new FormData()
-  data.append("file", file)
-  data.append("upload_preset", "rolecart_unsigned")
-
-  const res = await fetch(
-    "https://api.cloudinary.com/v1_1/dn0lwg4sb/image/upload",
-    {
-      method: "POST",
-      body: data
+    if (!file.type.startsWith("image/")) {
+      alert("Please upload a valid IMAGE file")
+      return form.image
     }
-  )
 
-  const json = await res.json()
+    const data = new FormData()
+    data.append("file", file)
+    data.append("upload_preset", "rolecart_unsigned")
 
-  if (!json.secure_url) {
-    console.error("Cloudinary error:", json)
-    throw new Error("Image upload failed")
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/dn0lwg4sb/image/upload",
+      {
+        method: "POST",
+        body: data
+      }
+    )
+
+    const json = await res.json()
+
+    if (!json.secure_url) {
+      console.error("Cloudinary error:", json)
+      throw new Error("Image upload failed")
+    }
+
+    return json.secure_url
   }
-
-  return json.secure_url
-}
 
   /* ================= SAVE PRODUCT ================= */
   const handleSubmit = async (e) => {
@@ -235,6 +99,7 @@ const uploadImage = async () => {
         name: form.name,
         price: Number(form.price),
         category: form.category,
+        stock: Number(form.stock),        // ✅ SAVE STOCK
         shortDesc: form.shortDesc,
         fullDesc: form.fullDesc,
         specs: form.specs.split(",").map(s => s.trim()),
@@ -287,6 +152,17 @@ const uploadImage = async () => {
             placeholder="Price"
             value={form.price}
             onChange={e => setForm({ ...form, price: e.target.value })}
+            required
+          />
+
+          {/* ✅ STOCK INPUT */}
+          <input
+            className="input"
+            type="number"
+            min="0"
+            placeholder="Stock Quantity"
+            value={form.stock}
+            onChange={e => setForm({ ...form, stock: e.target.value })}
             required
           />
 

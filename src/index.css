@@ -6,3 +6,6 @@
   padding: 10px;
   border-radius: 10px;
 }
+.btn {
+  @apply bg-black text-white px-4 py-2 rounded hover:bg-gray-800;
+}

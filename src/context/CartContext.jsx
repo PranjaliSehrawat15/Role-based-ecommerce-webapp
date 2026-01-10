@@ -1,55 +1,77 @@
-import { createContext, useContext, useState } from "react"
+
+import { createContext, useContext, useEffect, useState } from "react"
 
 const CartContext = createContext()
 
 export const useCart = () => useContext(CartContext)
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([])
+  // ✅ Load cart from localStorage on first render
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("cart")
+    return savedCart ? JSON.parse(savedCart) : []
+  })
 
-  // ADD TO CART
+  // ✅ Persist cart to localStorage on every change
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart))
+  }, [cart])
+
+  // ✅ ADD TO CART
   const addToCart = (product) => {
     setCart(prev => {
       const existing = prev.find(p => p.id === product.id)
+
       if (existing) {
         return prev.map(p =>
           p.id === product.id
-            ? { ...p, qty: p.qty + 1 }
+            ? { ...p, quantity: p.quantity + 1 }
             : p
         )
       }
-      return [...prev, { ...product, qty: 1 }]
+
+      return [...prev, { ...product, quantity: 1 }]
     })
   }
 
-  // INCREASE QTY
+  // ✅ INCREASE QUANTITY
   const increaseQty = (id) => {
     setCart(prev =>
       prev.map(p =>
-        p.id === id ? { ...p, qty: p.qty + 1 } : p
+        p.id === id
+          ? { ...p, quantity: p.quantity + 1 }
+          : p
       )
     )
   }
 
-  // DECREASE QTY
+  // ✅ DECREASE QUANTITY
   const decreaseQty = (id) => {
     setCart(prev =>
       prev
         .map(p =>
-          p.id === id ? { ...p, qty: p.qty - 1 } : p
+          p.id === id
+            ? { ...p, quantity: p.quantity - 1 }
+            : p
         )
-        .filter(p => p.qty > 0)
+        .filter(p => p.quantity > 0)
     )
   }
 
-  // REMOVE ITEM
+  // ✅ REMOVE ITEM
   const removeFromCart = (id) => {
     setCart(prev => prev.filter(p => p.id !== id))
   }
 
-  // TOTAL PRICE
+  // ✅ CLEAR CART (order placed)
+  const clearCart = () => {
+    setCart([])
+    localStorage.removeItem("cart")
+  }
+
+  // ✅ TOTAL PRICE
   const total = cart.reduce(
-    (sum, item) => sum + item.price * item.qty,
+    (sum, item) => sum + item.price * item.quantity,
     0
   )
 
@@ -61,6 +83,7 @@ export function CartProvider({ children }) {
         increaseQty,
         decreaseQty,
         removeFromCart,
+        clearCart,
         total
       }}
     >
