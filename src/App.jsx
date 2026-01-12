@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom"
 
 import Login from "./pages/auth/Login"
 import Signup from "./pages/auth/Signup"
+import Profile from "./pages/profile"
+
 
 import Dashboard from "./pages/admin/Dashboard"
 import Products from "./pages/admin/Products"
@@ -25,6 +27,7 @@ export default function App() {
       {/* Auth */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/profile" element={<Profile />} />
 
 
       {/* Admin */}
