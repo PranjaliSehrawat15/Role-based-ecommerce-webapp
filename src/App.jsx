@@ -3,21 +3,20 @@ import { Routes, Route, Navigate } from "react-router-dom"
 import Login from "./pages/auth/Login"
 import Signup from "./pages/auth/Signup"
 import Profile from "./pages/profile"
-
+import ChooseRole from "./pages/ChooseRole"
 
 import Dashboard from "./pages/admin/Dashboard"
 import Products from "./pages/admin/Products"
 import AddEditProducts from "./pages/admin/AddEditProducts"
+import AdminOrders from "./pages/admin/Orders"
 
 import Store from "./pages/buyer/Store"
 import ProductDetails from "./pages/buyer/ProductDetails"
 import Checkout from "./pages/buyer/Checkout"
+import Orders from "./pages/buyer/Orders"
 
 import AdminRoute from "./routes/AdminRoute"
 import BuyerRoute from "./routes/BuyerRoute"
-
-import Orders from "./pages/buyer/Orders"
-import AdminOrders from "./pages/admin/Orders"
 
 export default function App() {
   return (
@@ -28,9 +27,9 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/choose-role" element={<ChooseRole />} />
 
-
-      {/* Admin */}
+      {/* Seller / Admin */}
       <Route
         path="/admin"
         element={
@@ -39,6 +38,22 @@ export default function App() {
           </AdminRoute>
         }
       />
+      <Route
+  path="/buyer-dashboard"
+  element={
+    <BuyerRoute>
+      <Store />
+    </BuyerRoute>
+  }
+/>
+<Route
+  path="/seller-dashboard"
+  element={
+    <AdminRoute>
+      <Dashboard />
+    </AdminRoute>
+  }
+/>
 
       <Route
         path="/admin/products"
@@ -66,7 +81,15 @@ export default function App() {
           </AdminRoute>
         }
       />
-        <Route path="/admin/orders" element={<AdminRoute><AdminOrders /></AdminRoute>} />
+
+      <Route
+        path="/admin/orders"
+        element={
+          <AdminRoute>
+            <AdminOrders />
+          </AdminRoute>
+        }
+      />
 
       {/* Buyer */}
       <Route
@@ -95,7 +118,16 @@ export default function App() {
           </BuyerRoute>
         }
       />
-        <Route path="/orders" element={<BuyerRoute><Orders /></BuyerRoute>} />
+
+      <Route
+        path="/orders"
+        element={
+          <BuyerRoute>
+            <Orders />
+          </BuyerRoute>
+        }
+      />
     </Routes>
+    
   )
 }

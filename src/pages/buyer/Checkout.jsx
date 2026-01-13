@@ -4,7 +4,8 @@ import {
   addDoc,
   serverTimestamp,
   doc,
-  runTransaction
+  runTransaction,
+  getDoc
 } from "firebase/firestore"
 import Navbar from "../../components/layout/Navbar"
 import { db } from "../../firebase/firebase"
@@ -29,6 +30,15 @@ export default function Checkout() {
     }
 
     try {
+      // 🔥 Get seller ID from first product BEFORE transaction
+      let sellerId = ""
+      if (cart.length > 0) {
+        const productSnap = await getDoc(doc(db, "products", cart[0].id))
+        if (productSnap.exists()) {
+          sellerId = productSnap.data().sellerId || ""
+        }
+      }
+
       await runTransaction(db, async (transaction) => {
         /* ================= CHECK & REDUCE STOCK ================= */
         for (const item of cart) {
@@ -68,6 +78,7 @@ export default function Checkout() {
           })),
           total,
           status: "placed",
+          sellerId,  // 🔥 Seller ID
           createdAt: serverTimestamp()
         })
       })

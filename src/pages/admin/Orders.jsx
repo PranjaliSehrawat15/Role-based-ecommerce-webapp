@@ -1,24 +1,33 @@
 import { useEffect, useState } from "react"
-import { collection, getDocs, orderBy, query, updateDoc, doc } from "firebase/firestore"
+import { collection, getDocs, orderBy, query, updateDoc, doc, where } from "firebase/firestore"
 import { db } from "../../firebase/firebase"
+import { useAuth } from "../../context/AuthContext"
 import Navbar from "../../components/layout/Navbar"
 import Loader from "../../components/ui/Loader"
 
 
 export default function Orders() {
+  const { user } = useAuth()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
   const fetchOrders = async () => {
-    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"))
+    if (!user) return
+    const q = query(
+      collection(db, "orders"),
+      where("sellerId", "==", user.uid)
+    )
     const snap = await getDocs(q)
-    setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    // Sort newest first
+    docs.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0))
+    setOrders(docs)
     setLoading(false)
   }
 
   useEffect(() => {
     fetchOrders()
-  }, [])
+  }, [user])
 
   const updateStatus = async (orderId, status) => {
     await updateDoc(doc(db, "orders", orderId), { status })

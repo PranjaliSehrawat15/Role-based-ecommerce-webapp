@@ -1,113 +1,170 @@
+
+import { useEffect, useState } from "react"
+import { auth, db } from "../firebase/firebase"
+import {
+  GoogleAuthProvider,
+  EmailAuthProvider,
+  linkWithPopup,
+  linkWithCredential
+} from "firebase/auth"
+import { doc, getDoc } from "firebase/firestore"
 import { useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import { auth } from "../firebase/firebase"
-import { signOut } from "firebase/auth"
-import Navbar from "../components/layout/Navbar"
-import { GoogleAuthProvider, linkWithPopup } from "firebase/auth"
 
 export default function Profile() {
-  const { user, role } = useAuth()
+  const user = auth.currentUser
   const navigate = useNavigate()
 
-const providers = user.providerData.map(p => p.providerId)
+  // 🔐 providers
+  const providers = user.providerData.map(p => p.providerId)
+  const hasGoogle = providers.includes("google.com")
+  const hasPassword = providers.includes("password")
 
-const hasGoogle = providers.includes("google.com")
-const hasPassword = providers.includes("password")
-const linkGoogle = async () => {
-  try {
-    const provider = new GoogleAuthProvider()
-    await linkWithPopup(user, provider)
-    alert("Google account linked successfully 🎉")
-    window.location.reload()
-  } catch (err) {
-    alert(err.message)
+  // 🔁 role state
+  const [role, setRole] = useState(null)
+
+  // 🔁 modal state
+  const [showModal, setShowModal] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  // 🔥 FETCH ROLE FROM FIRESTORE
+  useEffect(() => {
+    const fetchRole = async () => {
+      const snap = await getDoc(doc(db, "users", user.uid))
+      if (snap.exists()) {
+        setRole(snap.data().role)
+      }
+    }
+    fetchRole()
+  }, [user.uid])
+
+  // 🔗 link google
+  const linkGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider()
+      await linkWithPopup(user, provider)
+      alert("Google account linked")
+      window.location.reload()
+    } catch (err) {
+      alert(err.message)
+    }
   }
-}
 
-
-  const handleLogout = async () => {
-    await signOut(auth)
-    navigate("/login")
+  // 🔗 link email/password
+  const linkEmailPassword = async () => {
+    try {
+      const credential = EmailAuthProvider.credential(email, password)
+      await linkWithCredential(user, credential)
+      alert("Email & Password linked")
+      setShowModal(false)
+      window.location.reload()
+    } catch (err) {
+      alert(err.message)
+    }
   }
 
-  if (!user) return null
+  // 🚀 dashboard redirect
+  const goToDashboard = () => {
+    if (role === "seller") navigate("/seller-dashboard")
+    else navigate("/buyer-dashboard")
+  }
 
   return (
-    <>
-      <Navbar />
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white rounded-xl shadow-lg p-8 w-105">
+        <h2 className="text-2xl font-bold mb-6 text-center">My Profile</h2>
 
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-        <div className="bg-white w-full max-w-md rounded-xl shadow p-6 space-y-4">
+        <div className="space-y-2 text-sm">
+          <p><b>Email:</b> {user.email}</p>
+          <p><b>User ID:</b> {user.uid}</p>
+          <p><b>Role:</b> {role || "loading..."}</p>
+          <p><b>Auth Provider:</b> {providers.join(", ")}</p>
+        </div>
 
-          <h2 className="text-2xl font-bold text-center">
-            My Profile
-          </h2>
+        {/* 🚀 DASHBOARD BUTTON */}
+        {role && (
+          <button
+            onClick={goToDashboard}
+            className="w-full border py-2 rounded mt-4"
+          >
+            Go to {role === "seller" ? "Seller" : "Buyer"} Dashboard
+          </button>
+        )}
 
-          {/* USER INFO */}
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-500">Email</span>
-              <span className="font-medium">{user.email}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-gray-500">Role</span>
-              <span className="capitalize font-medium">{role}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-gray-500">User ID</span>
-              <span className="truncate max-w-45 text-right">
-                {user.uid}
-              </span>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="text-gray-500">Auth Provider</span>
-              <span className="font-medium">
-                {user.providerData.map(p => p.providerId).join(", ")}
-              </span>
-            </div>
-          </div>
-
-          {/* ACTIONS */}
-          <div className="pt-4 space-y-2">
-            {role === "seller" && (
-              <button
-                onClick={() => navigate("/admin")}
-                className="w-full border py-2 rounded hover:bg-gray-100"
-              >
-                Go to Seller Dashboard
-              </button>
-            )}
-
-            {role === "buyer" && (
-              <button
-                onClick={() => navigate("/store")}
-                className="w-full border py-2 rounded hover:bg-gray-100"
-              >
-                Go to Store
-              </button>
-            )}
-{!hasGoogle && (
-  <button
-    onClick={linkGoogle}
-    className="w-full border px-4 py-2 rounded"
-  >
-    🔗 Link Google Account
-  </button>
-)}
-
+        {/* 🔗 LINKING BUTTONS */}
+        <div className="mt-4 space-y-3">
+          {hasGoogle && !hasPassword && (
             <button
-              onClick={handleLogout}
-              className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600"
+              onClick={() => setShowModal(true)}
+              className="w-full bg-black text-white py-2 rounded"
             >
-              Logout
+              Link Email & Password
             </button>
-          </div>
+          )}
 
+          {hasPassword && !hasGoogle && (
+            <button
+              onClick={linkGoogle}
+              className="w-full bg-black text-white py-2 rounded"
+            >
+              Link Google Account
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              auth.signOut()
+              navigate("/login")
+            }}
+            className="w-full bg-red-500 text-white py-2 rounded"
+          >
+            Logout
+          </button>
         </div>
       </div>
-    </>
+
+      {/* 🔥 MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-87.5">
+            <h3 className="text-lg font-semibold mb-4">
+              Link Email & Password
+            </h3>
+
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full border px-3 py-2 rounded mb-3"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full border px-3 py-2 rounded mb-4"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+
+            <div className="flex gap-2">
+              <button
+                onClick={linkEmailPassword}
+                className="flex-1 bg-black text-white py-2 rounded"
+              >
+                Link
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="flex-1 border py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
+

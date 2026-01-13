@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
-import { collection, getDocs } from "firebase/firestore"
+import { collection, getDocs, query, where } from "firebase/firestore"
 import { db } from "../../firebase/firebase"
+import { useAuth } from "../../context/AuthContext"
 import Navbar from "../../components/layout/Navbar"
 import Sidebar from "../../components/layout/Sidebar"
 
 export default function Dashboard() {
+  const { user } = useAuth()
   const [totalProducts, setTotalProducts] = useState(0)
   const [totalOrders, setTotalOrders] = useState(0)
   const [totalRevenue, setTotalRevenue] = useState(0)
@@ -12,13 +14,23 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      if (!user) return
+
       try {
-        // Products count
-        const productSnap = await getDocs(collection(db, "products"))
+        // 🔥 Get only CURRENT SELLER's products
+        const productQuery = query(
+          collection(db, "products"),
+          where("sellerId", "==", user.uid)
+        )
+        const productSnap = await getDocs(productQuery)
         setTotalProducts(productSnap.size)
 
-        // Orders data
-        const orderSnap = await getDocs(collection(db, "orders"))
+        // 🔥 Get only CURRENT SELLER's orders
+        const orderQuery = query(
+          collection(db, "orders"),
+          where("sellerId", "==", user.uid)
+        )
+        const orderSnap = await getDocs(orderQuery)
         setTotalOrders(orderSnap.size)
 
         let revenue = 0
@@ -34,7 +46,7 @@ export default function Dashboard() {
     }
 
     fetchStats()
-  }, [])
+  }, [user])
 
   return (
     <>
