@@ -1,94 +1,191 @@
+// import { useNavigate } from "react-router-dom"
 // import { useCart } from "../context/CartContext"
-// import { useNavigate } from "react-router-dom";
 
 // export default function ProductCard({ product }) {
-//   const navigate = useNavigate();
-//   const { addToCart } = useCart();
+//   const navigate = useNavigate()
+//   const { addToCart } = useCart()
+
+//   const outOfStock = product.stock === 0
 
 //   return (
-//     <div className="bg-white p-4 rounded-2xl shadow">
-//      <div
-//         onClick={() => navigate(`/product/${product.id}`)}
-//         className="cursor-pointer"
-//       >
+//     <div className="group flex flex-col h-full bg-[#1a1f3a] rounded-lg overflow-hidden shadow-lg hover:shadow-[0_0_30px_rgba(0,212,255,0.2)] transition-all duration-300 border border-[#3f4663] hover:border-[#00d4ff] hover:glow-cyan">
+//       {/* Image Container */}
+//       <div className="relative overflow-hidden bg-linear-to-br from-[#2d3561] to-[#1a1f3a] shrink-0 aspect-square">
 //         <img
-//   src={product.image || "https://via.placeholder.com/400x250?text=No+Image"}
-//   alt={product.name}
-//   className="h-48 w-full object-cover rounded"
-// />
+//           src={product.image || "https://via.placeholder.com/400x300?text=No+Image"}
+//           alt={product.name}
+//           className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700 cursor-pointer"
+//           onClick={() => navigate(`/product/${product.id}`)}
+//         />
 
+//         {/* Gradient Overlay on Hover */}
+//         <div className="absolute inset-0 bg-[#00d4ff] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
 
+//         {/* Out of Stock Overlay */}
+//         {outOfStock && (
+//           <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+//             <div className="text-center">
+//               <p className="text-white font-bold text-lg">Out of Stock</p>
+//               <p className="text-white/80 text-xs mt-1">Coming soon</p>
+//             </div>
+//           </div>
+//         )}
 
-//         <h3 className="font-semibold">{product.name}</h3>
-//         <p className="text-gray-600">₹{product.price}</p>
-//         <p className="text-sm text-gray-500">{product.category}</p>
+//         {/* Category Badge */}
+//         {product.category && (
+//           <div className="absolute top-4 left-4">
+//             <span className="bg-linear-to-r from-[#7c3aed] to-[#06b6d4] text-white text-xs font-semibold px-3 py-1.5 rounded-lg capitalize shadow-md">
+//               {product.category}
+//             </span>
+//           </div>
+//         )}
+
+//         {/* Stock Badge */}
+//         {!outOfStock && product.stock < 5 && (
+//           <div className="absolute top-4 right-4">
+//             <span className="bg-[#f59e0b] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-md animate-pulse">
+//               Only {product.stock} left
+//             </span>
+//           </div>
+//         )}
+
+//         {/* Sale Badge */}
+//         <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+//           <span className="bg-[#00d4ff] text-[#0a0e27] text-xs font-bold px-3 py-1.5 rounded-lg">
+//             ⭐ Premium
+//           </span>
+//         </div>
 //       </div>
 
-//       <button
-//         onClick={() => addToCart(product)}
-//         className="mt-3 w-full bg-black text-white py-2 rounded"
-//       >
-//         Add to Cart
-//       </button>
+//       {/* Content */}
+//       <div className="flex flex-col flex-1 p-5">
+//         {/* Title */}
+//         <h3
+//           className="font-bold text-[#e5e7eb] text-sm group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-[#00d4ff] group-hover:to-[#7c3aed] group-hover:bg-clip-text line-clamp-2 cursor-pointer transition-all duration-300 h-10 leading-5"
+//           onClick={() => navigate(`/product/${product.id}`)}
+//           title={product.name}
+//         >
+//           {product.name}
+//         </h3>
+
+//         {/* Description */}
+//         {product.shortDesc && (
+//           <p className="text-xs text-[#9ca3af] mt-1 line-clamp-1">
+//             {product.shortDesc}
+//           </p>
+//         )}
+
+//         {/* Price Section */}
+//         <div className="mt-3 mb-4">
+//           <p className="text-2xl font-bold bg-linear-to-r from-[#00d4ff] to-[#7c3aed] bg-clip-text text-transparent">
+//             ₹{product.price.toLocaleString("en-IN")}
+//           </p>
+//           <p className="text-xs text-[#9ca3af] mt-1">
+//             {outOfStock ? (
+//               <span className="text-[#f87171] font-semibold">Currently unavailable</span>
+//             ) : (
+//               <span className="text-[#6ee7b7] font-medium">✓ In stock ({product.stock} available)</span>
+//             )}
+//           </p>
+//         </div>
+
+//         {/* Buttons */}
+//         <div className="flex gap-2 mt-auto pt-4 border-t border-[#3f4663]">
+//           <button
+//             onClick={() => navigate(`/product/${product.id}`)}
+//             className="flex-1 px-4 py-2.5 text-sm font-semibold text-[#00d4ff] border-2 border-[#00d4ff] rounded-lg hover:bg-[#1a1f3a] hover:shadow-[0_0_10px_rgba(0,212,255,0.3)] transition-all duration-200"
+//           >
+//             View Details
+//           </button>
+
+//           <button
+//             onClick={() => addToCart(product)}
+//             disabled={outOfStock}
+//             className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+//               outOfStock
+//                 ? "bg-[#3f4663] text-[#9ca3af] cursor-not-allowed"
+//                 : "bg-linear-to-r from-[#7c3aed] to-[#06b6d4] text-white hover:shadow-lg hover:shadow-[#00d4ff]/50 active:scale-95"
+//             }`}
+//           >
+//             {outOfStock ? "Unavailable" : "🛍️ Add to Cart"}
+//           </button>
+//         </div>
+//       </div>
 //     </div>
-//   );
+//   )
 // }
 
 import { useNavigate } from "react-router-dom"
-import { useCart } from "../context/CartContext"
 
 export default function ProductCard({ product }) {
   const navigate = useNavigate()
-  const { addToCart } = useCart()
-
-  const outOfStock = product.stock === 0
 
   return (
-    <div className="border rounded-xl p-4 bg-white shadow relative">
-      {/* OUT OF STOCK BADGE */}
-      {outOfStock && (
-        <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
-          Out of Stock
-        </span>
-      )}
+    <div
+      onClick={() => navigate(`/product/${product.id}`)}
+      className="group cursor-pointer bg-[#1a1f3a] border border-[#3f4663] rounded-2xl overflow-hidden
+                 hover:border-[#00d4ff] transition-all duration-500
+                 hover:shadow-[0_0_30px_rgba(0,212,255,0.25)] hover:-translate-y-2"
+    >
+      {/* IMAGE */}
+      <div className="relative overflow-hidden bg-[#0a0e27]">
+        <img
+          src={product.image || "https://via.placeholder.com/400x300?text=No+Image"}
+          alt={product.name}
+          className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700"
+        />
 
-      <img
-        src={product.image}
-        alt={product.name}
-        className="h-40 w-full object-cover rounded mb-3 cursor-pointer"
-        onClick={() => navigate(`/product/${product.id}`)}
-      />
+        {/* CATEGORY BADGE */}
+        {product.category && (
+          <div className="absolute top-4 left-4">
+            <span className="px-3 py-1 text-xs font-bold rounded-full
+                             bg-linear-to-r from-[#7c3aed] to-[#06b6d4]
+                             text-white shadow-lg capitalize">
+              {product.category}
+            </span>
+          </div>
+        )}
 
-      <h3 className="font-semibold">{product.name}</h3>
-      <p className="text-gray-600">₹{product.price}</p>
+        {/* STOCK OVERLAY */}
+        {product.stock === 0 && (
+          <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+            <span className="text-white font-bold text-xl">
+              Out of Stock
+            </span>
+          </div>
+        )}
+      </div>
 
-      {/* STOCK INFO */}
-      <p className="text-sm text-gray-500 mt-1">
-        {outOfStock
-          ? "Currently unavailable"
-          : `In stock: ${product.stock}`}
-      </p>
+      {/* CONTENT */}
+      <div className="p-5 flex flex-col gap-3">
+        {/* NAME */}
+        <h3 className="text-lg font-bold text-[#e5e7eb] line-clamp-2
+                       group-hover:text-[#00d4ff] transition-colors">
+          {product.name}
+        </h3>
 
-      <div className="mt-4 flex gap-2">
-        <button
-          onClick={() => navigate(`/product/${product.id}`)}
-          className="border px-4 py-1 rounded"
-        >
-          View
-        </button>
+        {/* CATEGORY TEXT */}
+        <p className="text-sm text-[#9ca3af] capitalize">
+          {product.category || "General"}
+        </p>
 
-        <button
-          onClick={() => addToCart(product)}
-          disabled={outOfStock}
-          className={`px-4 py-1 rounded text-white ${
-            outOfStock
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-black hover:bg-gray-800"
-          }`}
-        >
-          Add to Cart
-        </button>
+        {/* PRICE */}
+        <div className="mt-auto flex items-center justify-between pt-4">
+          <p className="text-2xl font-extrabold
+                        bg-linear-to-r from-[#7c3aed] to-[#06b6d4]
+                        bg-clip-text text-transparent">
+            ₹{product.price}
+          </p>
+
+          <span className="text-sm text-[#00d4ff] font-semibold
+                           opacity-0 group-hover:opacity-100
+                           translate-x-2 group-hover:translate-x-0
+                           transition-all duration-500">
+            View →
+          </span>
+        </div>
       </div>
     </div>
   )
 }
+

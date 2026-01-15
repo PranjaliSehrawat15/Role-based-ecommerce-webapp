@@ -8,7 +8,10 @@ import {
   getDoc,
   getDocs,
   serverTimestamp,
-  updateDoc
+  updateDoc,
+  setDoc,
+  query,
+  where
 } from "firebase/firestore"
 import { db } from "../../firebase/firebase"
 import { useAuth } from "../../context/AuthContext"
@@ -39,9 +42,14 @@ export default function AddEditProducts() {
   /* ================= LOAD CATEGORIES ================= */
   useEffect(() => {
     const fetchCategories = async () => {
-      const snap = await getDocs(collection(db, "categories"))
-      const list = snap.docs.map(d => d.data().name)
-      setCategories(list)
+      try {
+        const snap = await getDocs(collection(db, "categories"))
+        const list = snap.docs.map(d => d.data().category || d.id)
+        setCategories(list)
+      } catch (err) {
+        console.log("Categories collection doesn't exist yet")
+        setCategories([])
+      }
     }
     fetchCategories()
   }, [])
@@ -72,33 +80,38 @@ export default function AddEditProducts() {
   }, [id])
 
   /* ================= ADD CATEGORY (FIRESTORE) ================= */
-  const handleAddCategory = () => {
-  const value = newCategory.trim()
-  if (!value) return
+  const handleAddCategory = async () => {
+    const value = newCategory.trim()
+    if (!value) return
 
-  // normalize
-  const normalized = value.toLowerCase()
+    // Check if category already exists
+    const normalized = value.toLowerCase()
+    const existing = categories.find(
+      c => c.toLowerCase() === normalized
+    )
 
-  const existing = categories.find(
-    c => c.toLowerCase() === normalized
-  )
+    if (existing) {
+      alert("This category already exists!")
+      return
+    }
 
-  const finalCategory = existing || value
+    try {
+      // Save to Firestore
+      await setDoc(
+        doc(db, "categories", value.toLowerCase()),
+        { category: value, createdAt: new Date() }
+      )
 
-  setCategories(prev =>
-    prev.some(c => c.toLowerCase() === normalized)
-      ? prev
-      : [...prev, value]
-  )
-
-  // 🔥 THIS IS THE IMPORTANT LINE
-  setForm(prev => ({
-    ...prev,
-    category: finalCategory
-  }))
-
-  setNewCategory("")
-}
+      // Update local state
+      setCategories(prev => [...prev, value])
+      setForm(prev => ({ ...prev, category: value }))
+      setNewCategory("")
+      alert("Category added successfully!")
+    } catch (err) {
+      console.error("Error adding category:", err.message, err.code)
+      alert(`Failed to add category: ${err.message}`)
+    }
+  }
 
   /* ================= IMAGE UPLOAD ================= */
   const uploadImage = async () => {
@@ -139,7 +152,17 @@ export default function AddEditProducts() {
         specs: form.specs.split(",").map(s => s.trim()),
         image: imageUrl || "",
         updatedAt: serverTimestamp(),
-        sellerId: user.uid  // 🔥 ADD SELLER ID
+        sellerId: user.uid  //  ADD SELLER ID
+      }
+
+      // Save category to categories collection if it doesn't exist
+      const catKey = form.category.toLowerCase()
+      const existingCat = categories.find(c => c.toLowerCase() === catKey)
+      if (!existingCat) {
+        await setDoc(
+          doc(db, "categories", catKey),
+          { category: form.category, createdAt: new Date() }
+        )
       }
 
       if (id) {
@@ -165,88 +188,138 @@ export default function AddEditProducts() {
       <Navbar />
 
       <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-6">
-          {id ? "Edit Product" : "Add Product"}
+        <h1 className="text-4xl font-bold mb-8 text-gray-900">
+          {id ? "✏️ Edit Product" : "➕ Add Product"}
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="card p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
 
-          <input className="input" placeholder="Name"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-            required />
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+              <input className="input" placeholder="e.g., iPhone 15 Pro"
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                required />
+            </div>
 
-          <input className="input" type="number" placeholder="Price"
-            value={form.price}
-            onChange={e => setForm({ ...form, price: e.target.value })}
-            required />
+            {/* Price & Stock Row */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                <input className="input" type="number" placeholder="999"
+                  value={form.price}
+                  onChange={e => setForm({ ...form, price: e.target.value })}
+                  required />
+              </div>
 
-          <input className="input" type="number" placeholder="Stock"
-            value={form.stock}
-            onChange={e => setForm({ ...form, stock: e.target.value })}
-            required />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                <input className="input" type="number" placeholder="10"
+                  value={form.stock}
+                  onChange={e => setForm({ ...form, stock: e.target.value })}
+                  required />
+              </div>
+            </div>
 
-          {/* CATEGORY SELECT */}
-        <select
-  className="input"
-  value={form.category || ""}
-  onChange={e =>
-    setForm(prev => ({ ...prev, category: e.target.value }))
-  }
->
-  <option value="">Select Category</option>
-  {categories.map(cat => (
-    <option key={cat} value={cat}>
-      {cat}
-    </option>
-  ))}
-</select>
+            {/* Category Section */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              
+              {/* Category Select */}
+              <select
+                className="input mb-3"
+                value={form.category || ""}
+                onChange={e =>
+                  setForm(prev => ({ ...prev, category: e.target.value }))
+                }
+              >
+                <option value="">-- Select Existing Category --</option>
+                {categories.length > 0 ? (
+                  categories.map(cat => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))
+                ) : (
+                  <option disabled>No categories available</option>
+                )}
+              </select>
 
+              {/* Add New Category */}
+              <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                <p className="text-xs font-medium text-gray-600 mb-2">Add New Category</p>
+                <div className="flex gap-2">
+                  <input
+                    className="input flex-1"
+                    placeholder="Type new category..."
+                    value={newCategory}
+                    onChange={e => setNewCategory(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCategory}
+                    className="btn-secondary px-6 rounded-xl"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
 
-          {/* ADD CATEGORY */}
-          <div className="flex gap-2">
-            <input
-              className="input flex-1"
-              placeholder="Add new category"
-              value={newCategory}
-              onChange={e => setNewCategory(e.target.value)}
-            />
+            {/* Short Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Short Description</label>
+              <input className="input" placeholder="Brief product summary"
+                value={form.shortDesc}
+                onChange={e => setForm({ ...form, shortDesc: e.target.value })} />
+            </div>
+
+            {/* Full Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Full Description</label>
+              <textarea className="input" rows="4" placeholder="Detailed product information"
+                value={form.fullDesc}
+                onChange={e => setForm({ ...form, fullDesc: e.target.value })} />
+            </div>
+
+            {/* Specs */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Specifications (comma-separated)</label>
+              <textarea className="input" rows="2" placeholder="e.g., 128GB Storage, 6.1 inch Display, 48MP Camera"
+                value={form.specs}
+                onChange={e => setForm({ ...form, specs: e.target.value })} />
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+              <input type="file" accept="image/*"
+                onChange={e => setFile(e.target.files[0])}
+                className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black file:text-white hover:file:bg-gray-800"
+              />
+
+              {form.image && (
+                <div className="mt-4">
+                  <p className="text-xs text-gray-600 mb-2">Current Image:</p>
+                  <img src={form.image} alt="" className="h-32 w-32 object-cover rounded-lg border border-gray-200" />
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
             <button
-              type="button"
-              onClick={handleAddCategory}
-              className="bg-black text-white px-4 rounded"
+              type="submit"
+              disabled={loading}
+              className={`btn w-full py-3 text-lg font-bold rounded-xl ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Add
+              {loading ? "⏳ Saving..." : id ? "💾 Update Product" : "✅ Create Product"}
             </button>
-          </div>
-
-          <input className="input" placeholder="Short description"
-            value={form.shortDesc}
-            onChange={e => setForm({ ...form, shortDesc: e.target.value })} />
-
-          <textarea className="input" rows="4" placeholder="Full description"
-            value={form.fullDesc}
-            onChange={e => setForm({ ...form, fullDesc: e.target.value })} />
-
-          <textarea className="input" rows="2" placeholder="Specs"
-            value={form.specs}
-            onChange={e => setForm({ ...form, specs: e.target.value })} />
-
-          <input type="file" accept="image/*"
-            onChange={e => setFile(e.target.files[0])} />
-
-          {form.image && (
-            <img src={form.image} alt="" className="h-32 rounded border" />
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-black text-white px-6 py-2 rounded"
-          >
-            {loading ? "Saving..." : "Save Product"}
-          </button>
-        </form>
+          </form>
+        </div>
       </div>
     </>
   )

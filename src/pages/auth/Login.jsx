@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import {
   signInWithEmailAndPassword,
@@ -12,14 +11,18 @@ import { useNavigate } from "react-router-dom"
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const loginEmail = async () => {
+    setLoading(true)
     try {
       await signInWithEmailAndPassword(auth, email, password)
       navigate("/profile")
     } catch {
       alert("Invalid email or password")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -37,39 +40,43 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow space-y-4">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
+      <div className="card w-full max-w-md p-8 space-y-4">
+        <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
 
         <input
-          className="w-full border px-4 py-2 rounded-lg"
+          className="input"
           placeholder="Email"
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
         />
 
         <input
-          className="w-full border px-4 py-2 rounded-lg"
+          className="input"
           type="password"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
         />
 
         <button
           onClick={loginEmail}
-          className="w-full bg-black text-white py-2 rounded-lg"
+          disabled={loading}
+          className="btn w-full"
         >
-          Login with Email
+          {loading ? "Signing in..." : "Login with Email"}
         </button>
 
         <button
           onClick={loginGoogle}
-          className="w-full bg-red-500 text-white py-2 rounded-lg"
+          disabled={loading}
+          className="btn-outline w-full"
         >
           Continue with Google
         </button>
 
         <p
-          className="text-center text-sm text-blue-600 cursor-pointer"
+          className="text-center text-sm text-black hover:underline cursor-pointer pt-4"
           onClick={() => navigate("/signup")}
         >
           Don’t have an account? Create one

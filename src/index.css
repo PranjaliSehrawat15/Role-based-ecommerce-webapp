@@ -1,11 +1,95 @@
 @import "tailwindcss";
 
+* {
+  @apply transition-colors duration-200;
+}
+
+
+:root {
+  --bg-dark: #0a0e27;
+  --bg-card: #1a1f3a;
+  --accent-cyan: #00d4ff;
+  --accent-purple: #7c3aed;
+  --text-light: #e5e7eb;
+}
+
+body {
+  @apply bg-[#0a0e27] text-[#e5e7eb];
+}
+
+
 .input {
-  width: 100%;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 10px;
+  @apply w-full px-4 py-3 border border-[#3f4663] rounded-lg bg-[#1a1f3a] text-[#e5e7eb] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#00d4ff] focus:border-transparent shadow-sm font-medium transition-all duration-200;
 }
+
+.input:disabled {
+  @apply bg-[#2d3561] text-[#9ca3af] cursor-not-allowed border-[#3f4663];
+}
+
 .btn {
-  @apply bg-black text-white px-4 py-2 rounded hover:bg-gray-800;
+  @apply px-6 py-3 rounded-lg font-bold text-white bg-linear-to-r from-[#7c3aed] to-[#06b6d4] hover:from-[#9d4edd] hover:to-[#00d4ff] active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#00d4ff] focus:ring-offset-2 focus:ring-offset-[#0a0e27] disabled:from-[#3f4663] disabled:to-[#3f4663] disabled:cursor-not-allowed transition-all duration-200 shadow-lg;
 }
+
+.btn-outline {
+  @apply px-6 py-3 rounded-lg font-bold border-2 border-[#00d4ff] text-[#00d4ff] hover:border-[#7c3aed] hover:text-[#7c3aed] hover:bg-[#1a1f3a] active:bg-[#2d3561] focus:outline-none focus:ring-2 focus:ring-[#00d4ff] focus:ring-offset-2 focus:ring-offset-[#0a0e27] transition-all duration-200;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 rounded-lg font-bold bg-[#2d3561] text-[#e5e7eb] hover:bg-[#3f4663] active:bg-[#4a5580] focus:outline-none focus:ring-2 focus:ring-[#7c3aed] focus:ring-offset-2 focus:ring-offset-[#0a0e27] disabled:bg-[#1a1f3a] disabled:text-[#9ca3af] disabled:cursor-not-allowed transition-all duration-200;
+}
+
+
+.card {
+  @apply bg-[#1a1f3a] rounded-lg shadow-lg border border-[#3f4663] transition-all duration-300;
+}
+
+.card-hover {
+  @apply bg-[#1a1f3a] rounded-lg shadow-lg border border-[#3f4663] hover:border-[#00d4ff] transition-all duration-300 flex flex-col h-full overflow-hidden;
+}
+
+
+.badge-primary {
+  @apply inline-block px-3 py-1.5 rounded-full text-xs font-bold bg-linear-to-r from-[#7c3aed] to-[#06b6d4] text-white shadow-md;
+}
+
+.badge-success {
+  @apply inline-block px-3 py-1.5 rounded-full text-xs font-bold bg-[#064e3b] text-[#6ee7b7] shadow-sm;
+}
+
+.badge-error {
+  @apply inline-block px-3 py-1.5 rounded-full text-xs font-bold bg-[#7f1d1d] text-[#fca5a5] shadow-sm;
+}
+
+.badge-warning {
+  @apply inline-block px-3 py-1.5 rounded-full text-xs font-bold bg-[#78350f] text-[#fbbf24] shadow-sm;
+}
+
+.skeleton {
+  @apply bg-linear-to-r from-[#1a1f3a] via-[#2d3561] to-[#1a1f3a] animate-pulse rounded-lg;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}  

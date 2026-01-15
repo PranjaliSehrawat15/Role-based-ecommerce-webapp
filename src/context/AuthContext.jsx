@@ -3,7 +3,7 @@ import { onAuthStateChanged } from "firebase/auth"
 import { auth, db } from "../firebase/firebase"
 import { doc, getDoc } from "firebase/firestore"
 
-const AuthContext = createContext()
+const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -11,48 +11,32 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async currentUser => {
-      setUser(currentUser)
-
-      if (!currentUser) {
-        setRole(null)
-        setLoading(false)
-        return
-      }
-
-      try {
-        const ref = doc(db, "users", currentUser.uid)
-        const snap = await getDoc(ref)
-
-        if (snap.exists()) {
-          setRole(snap.data().role)
-        } else {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser)
+        try {
+          const snap = await getDoc(doc(db, "users", currentUser.uid))
+          setRole(snap.exists() ? snap.data().role : null)
+        } catch {
           setRole(null)
         }
-      } catch (err) {
-        console.error("AuthContext error:", err)
+      } else {
+        setUser(null)
         setRole(null)
       }
-
       setLoading(false)
     })
 
-    return () => unsub()
+    return unsubscribe
   }, [])
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    )
-  }
-
   return (
-    <AuthContext.Provider value={{ user, role }}>
+    <AuthContext.Provider value={{ user, role, loading }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
-export const useAuth = () => useContext(AuthContext)
+export function useAuth() {
+  return useContext(AuthContext)
+}

@@ -9,9 +9,11 @@ export default function Signup() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("buyer")
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const handleSignup = async () => {
+    setLoading(true)
     try {
       const res = await createUserWithEmailAndPassword(auth, email, password)
 
@@ -25,30 +27,36 @@ export default function Signup() {
       navigate("/profile")
     } catch (err) {
       alert(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow space-y-4">
-        <h2 className="text-2xl font-bold text-center">Create Account</h2>
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
+      <div className="card w-full max-w-md p-8 space-y-4">
+        <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
 
         <input
-          className="w-full border px-4 py-2 rounded-lg"
+          className="input"
           placeholder="Email"
+          type="email"
           onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
         />
 
         <input
-          className="w-full border px-4 py-2 rounded-lg"
+          className="input"
           type="password"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
         />
 
         <select
-          className="w-full border px-4 py-2 rounded-lg"
+          className="input"
           onChange={(e) => setRole(e.target.value)}
+          disabled={loading}
         >
           <option value="buyer">Buyer</option>
           <option value="seller">Seller</option>
@@ -56,13 +64,14 @@ export default function Signup() {
 
         <button
           onClick={handleSignup}
-          className="w-full bg-black text-white py-2 rounded-lg"
+          disabled={loading}
+          className="btn w-full"
         >
-          Sign Up
+          {loading ? "Creating account..." : "Sign Up"}
         </button>
 
         <p
-          className="text-center text-sm text-blue-600 cursor-pointer"
+          className="text-center text-sm text-black hover:underline cursor-pointer pt-4"
           onClick={() => navigate("/login")}
         >
           Already have an account? Login
@@ -71,3 +80,5 @@ export default function Signup() {
     </div>
   )
 }
+
+
