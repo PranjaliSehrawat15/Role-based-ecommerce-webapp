@@ -1,26 +1,49 @@
+
 import { useEffect, useState } from "react"
-import { collection, getDocs, orderBy, query, updateDoc, doc, where } from "firebase/firestore"
+import {
+  collection,
+  getDocs,
+  query,
+  updateDoc,
+  doc,
+  where
+} from "firebase/firestore"
 import { db } from "../../firebase/firebase"
 import { useAuth } from "../../context/AuthContext"
 import Navbar from "../../components/layout/Navbar"
-import Loader from "../../components/ui/Loader"
-
+import Sidebar from "../../components/layout/Sidebar"
 
 export default function Orders() {
+
   const { user } = useAuth()
+
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   const fetchOrders = async () => {
     if (!user) return
+
     const q = query(
       collection(db, "orders"),
       where("sellerId", "==", user.uid)
     )
+
     const snap = await getDocs(q)
-    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    // Sort newest first
-    docs.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0))
+
+    const docs = snap.docs.map(d => ({
+      id: d.id,
+      ...d.data()
+    }))
+
+    // newest first
+    docs.sort(
+      (a, b) =>
+        (b.createdAt?.toMillis?.() || 0) -
+        (a.createdAt?.toMillis?.() || 0)
+    )
+
     setOrders(docs)
     setLoading(false)
   }
@@ -34,92 +57,159 @@ export default function Orders() {
     fetchOrders()
   }
 
+  const getStatusColor = status => {
+    if (status === "placed") return "bg-yellow-100 text-yellow-700"
+    if (status === "shipped") return "bg-blue-100 text-blue-700"
+    if (status === "delivered") return "bg-green-100 text-green-700"
+    if (status === "cancelled") return "bg-red-100 text-red-600"
+    return "bg-gray-100 text-gray-600"
+  }
+
   return (
     <>
-      <Navbar />
+      <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
-      <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">All Orders</h1>
+      <div className="flex">
 
-    {loading && <Loader text="Fetching orders..." />}
+        <Sidebar
+          mobileOpen={sidebarOpen}
+          close={() => setSidebarOpen(false)}
+        />
 
-        {!loading && orders.length === 0 && (
-          <p className="text-gray-500">No orders found.</p>
-        )}
+        <div className="flex-1 bg-gray-100 min-h-screen p-4 md:p-8">
 
-        <div className="space-y-4">
-          {orders.map(order => (
-            <div
-              key={order.id}
-              className="border rounded-xl p-4 bg-white shadow"
-            >
-              <div className="flex justify-between flex-wrap gap-3">
-                <div>
-                  <p className="font-semibold">Buyer: {order.buyerEmail}</p>
-                  <p className="text-sm text-gray-500">
-                    Current Status: <b>{order.status}</b>
-                  </p>
+          {/* HEADER */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Orders Management
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Track and manage your customer orders
+            </p>
+          </div>
+
+          {/* LOADING */}
+          {loading && (
+            <div className="text-center py-20 text-gray-500">
+              Loading orders...
+            </div>
+          )}
+
+          {/* EMPTY */}
+          {!loading && orders.length === 0 && (
+            <div className="bg-white rounded-xl shadow p-10 text-center">
+              <div className="text-6xl mb-4">📭</div>
+              <h3 className="text-xl font-bold">
+                No Orders Found
+              </h3>
+              <p className="text-gray-500 mt-2">
+                Orders will appear here once customers buy products.
+              </p>
+            </div>
+          )}
+
+          {/* ORDERS LIST */}
+          <div className="space-y-5">
+
+            {orders.map(order => (
+
+              <div
+                key={order.id}
+                className="bg-white rounded-xl shadow hover:shadow-lg transition p-5"
+              >
+
+                {/* TOP ROW */}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      {order.buyerEmail}
+                    </p>
+
+                    <span
+                      className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(order.status)}`}
+                    >
+                      {order.status}
+                    </span>
+                  </div>
+
+                  <div className="text-lg font-bold text-gray-900">
+                    ₹{order.total}
+                  </div>
+
                 </div>
 
-                <p className="font-bold">Total: ₹{order.total}</p>
+                {/* ITEMS */}
+                <div className="mt-4">
+                  <p className="font-semibold text-gray-700 mb-1">
+                    Items
+                  </p>
+
+                  <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+                    {order.items.map((item, idx) => (
+                      <li key={idx}>
+                        {item.name} × {item.quantity ?? 1}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* ACTION BUTTONS */}
+                {order.status !== "cancelled" && (
+
+                  <div className="mt-5 flex flex-wrap gap-3">
+
+                    <button
+                      onClick={() => updateStatus(order.id, "placed")}
+                      className={`px-4 py-1.5 rounded-lg border font-semibold text-sm transition ${
+                        order.status === "placed"
+                          ? "bg-black text-white"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      Placed
+                    </button>
+
+                    <button
+                      onClick={() => updateStatus(order.id, "shipped")}
+                      className={`px-4 py-1.5 rounded-lg border font-semibold text-sm transition ${
+                        order.status === "shipped"
+                          ? "bg-black text-white"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      Shipped
+                    </button>
+
+                    <button
+                      onClick={() => updateStatus(order.id, "delivered")}
+                      className={`px-4 py-1.5 rounded-lg border font-semibold text-sm transition ${
+                        order.status === "delivered"
+                          ? "bg-black text-white"
+                          : "hover:bg-gray-100"
+                      }`}
+                    >
+                      Delivered
+                    </button>
+
+                  </div>
+
+                )}
+
+                {order.status === "cancelled" && (
+                  <p className="mt-4 font-semibold text-red-500">
+                    Order cancelled by buyer
+                  </p>
+                )}
+
               </div>
 
-              <div className="mt-3">
-                <p className="font-medium mb-1">Items:</p>
-                <ul className="list-disc pl-5 text-sm text-gray-700">
-                  {order.items.map((item, idx) => (
-                    <li key={idx}>
-                      {item.name} × {item.quantity ?? 1}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            ))}
 
-              {/* STATUS CONTROLS */}
-<div className="mt-4 flex gap-2 flex-wrap">
-  {order.status !== "cancelled" && (
-    <>
-      <button
-        onClick={() => updateStatus(order.id, "placed")}
-        disabled={order.status === "delivered"}
-        className={`px-3 py-1 rounded border ${
-          order.status === "placed" ? "bg-black text-white" : ""
-        }`}
-      >
-        Placed
-      </button>
+          </div>
 
-      <button
-        onClick={() => updateStatus(order.id, "shipped")}
-        disabled={order.status === "delivered"}
-        className={`px-3 py-1 rounded border ${
-          order.status === "shipped" ? "bg-black text-white" : ""
-        }`}
-      >
-        Shipped
-      </button>
-
-      <button
-        onClick={() => updateStatus(order.id, "delivered")}
-        className={`px-3 py-1 rounded border ${
-          order.status === "delivered" ? "bg-black text-white" : ""
-        }`}
-      >
-        Delivered
-      </button>
-    </>
-  )}
-
-  {order.status === "cancelled" && (
-    <span className="text-red-600 font-semibold">
-      Order Cancelled by Buyer
-    </span>
-  )}
-</div>
-
-            </div>
-          ))}
         </div>
+
       </div>
     </>
   )

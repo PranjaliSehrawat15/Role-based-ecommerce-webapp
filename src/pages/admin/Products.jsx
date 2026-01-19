@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react"
 import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore"
 import { db } from "../../firebase/firebase"
@@ -7,99 +8,119 @@ import Navbar from "../../components/layout/Navbar"
 import Sidebar from "../../components/layout/Sidebar"
 
 export default function Products() {
+
   const [products, setProducts] = useState([])
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   const { user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
   const fetchProducts = async () => {
     if (!user) return
-    // 🔥 Get only CURRENT SELLER's products
-    const productQuery = query(
+
+    const q = query(
       collection(db, "products"),
       where("sellerId", "==", user.uid)
     )
-    const snap = await getDocs(productQuery)
+
+    const snap = await getDocs(q)
     setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })))
   }
 
   useEffect(() => {
     fetchProducts()
+    setSidebarOpen(false)   // ✅ route change par close
   }, [location.key, user])
 
   const handleDelete = async id => {
     if (!window.confirm("Delete this product?")) return
+
     await deleteDoc(doc(db, "products", id))
     fetchProducts()
   }
 
   return (
     <>
-      <Navbar />
+      {/* ✅ SAME STANDARD */}
+      <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
-      <div className="flex">
-        <Sidebar />
+      <div className="flex relative">
 
-        <div className="flex-1 p-8">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-4xl font-bold text-gray-900">My Products</h2>
+        <Sidebar
+          mobileOpen={sidebarOpen}
+          close={() => setSidebarOpen(false)}
+        />
+
+        <div className="flex-1 p-4 md:p-8">
+
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-8">
+            <h2 className="text-3xl font-bold">My Products</h2>
+
             <button
               onClick={() => navigate("/admin/products/new")}
-              className="btn"
+              className="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-cyan-400 text-white font-semibold"
             >
               ➕ Add New Product
             </button>
           </div>
 
           {products.length === 0 ? (
-            <div className="card p-12 text-center">
-              <div className="text-6xl mb-4">📦</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">No products yet</h3>
-              <p className="text-gray-600 mb-6">Start by adding your first product</p>
+            <div className="bg-white rounded-xl p-10 text-center shadow">
+              <h3 className="text-xl font-bold mb-2">No products yet</h3>
               <button
                 onClick={() => navigate("/admin/products/new")}
                 className="btn"
               >
-                Add First Product
+                Add Product
               </button>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
               {products.map(p => (
-                <div key={p.id} className="card overflow-hidden hover:shadow-lg transition-shadow">
+                <div key={p.id} className="bg-white rounded-xl shadow overflow-hidden">
+
                   <img
-                    src={p.image || "https://via.placeholder.com/300x200?text=No+Image"}
-                    alt={p.name}
-                    className="h-40 w-full object-cover bg-gray-100"
+                    src={p.image || "https://via.placeholder.com/300"}
+                    className="h-40 w-full object-cover"
                   />
 
                   <div className="p-4">
-                    <h3 className="font-bold text-gray-900 line-clamp-2 mb-1">{p.name}</h3>
-                    <p className="text-sm text-gray-600 mb-3">{p.category}</p>
-                    <p className="text-lg font-bold text-black mb-4">₹{p.price}</p>
+                    <h3 className="font-bold">{p.name}</h3>
+                    <p className="text-sm text-gray-500">{p.category}</p>
+                    <p className="font-bold mt-2">₹{p.price}</p>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mt-4">
+
                       <button
                         onClick={() => navigate(`/admin/products/edit/${p.id}`)}
-                        className="flex-1 btn-secondary py-2 text-sm rounded-lg"
+                        className="flex-1 bg-indigo-100 py-2 rounded"
                       >
-                        ✏️ Edit
+                        Edit
                       </button>
 
                       <button
                         onClick={() => handleDelete(p.id)}
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg font-medium transition-colors text-sm"
+                        className="flex-1 bg-red-500 text-white py-2 rounded"
                       >
-                        🗑️ Delete
+                        Delete
                       </button>
+
                     </div>
                   </div>
+
                 </div>
               ))}
+
             </div>
+
           )}
+
         </div>
       </div>
     </>
   )
 }
+
