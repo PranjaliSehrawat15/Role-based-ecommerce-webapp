@@ -40,19 +40,18 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
-      <div className="card w-full max-w-md p-8 space-y-4">
-        <h2 className="text-2xl font-bold text-center text-gray-100 mb-6">Login</h2>
-
+<div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#0b1120] via-[#111827] to-[#020617]">
+<div className="w-full max-w-md p-8 space-y-4 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
+<h2 className="text-2xl font-bold text-center text-white mb-6 tracking-wide">Login</h2>
         <input
-          className="input"
+          className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-[#1f2937] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
           placeholder="Email"
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
         />
 
         <input
-          className="input"
+          className="w-full px-4 py-3 rounded-lg bg-[#0f172a] border border-[#1f2937] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
           type="password"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
@@ -62,7 +61,8 @@ export default function Login() {
         <button
           onClick={loginEmail}
           disabled={loading}
-          className="btn w-full"
+          className="w-full py-3 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-semibold hover:opacity-90 transition shadow-lg"
+
         >
           {loading ? "Signing in..." : "Login with Email"}
         </button>
@@ -70,13 +70,14 @@ export default function Login() {
         <button
           onClick={loginGoogle}
           disabled={loading}
-          className="btn-outline w-full"
+          className="w-full py-3 rounded-lg border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition font-semibold"
+
         >
           Continue with Google
         </button>
 
         <p
-          className="text-center text-sm text-blue-400 hover:underline cursor-pointer pt-4"
+          className="text-center text-sm text-cyan-400 hover:underline cursor-pointer pt-4"
           onClick={() => navigate("/signup")}
         >
           Don’t have an account? Create one
