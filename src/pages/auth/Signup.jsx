@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { auth, db } from "../../firebase/firebase"
@@ -33,52 +32,83 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
-      <div className="card w-full max-w-md p-8 space-y-4">
-        <h2 className="text-2xl font-bold text-gray-100 text-center mb-6">Create Account</h2>
+    <>
+      {/* 🔥 Autofill Dark Mode Fix */}
+      <style>{`
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        select:-webkit-autofill {
+          -webkit-text-fill-color: #ffffff !important;
+          transition: background-color 5000s ease-in-out 0s;
+          box-shadow: 0 0 0px 1000px #0f172a inset !important;
+          caret-color: white;
+        }
+      `}</style>
 
-        <input
-          className="input"
-          placeholder="Email"
-          type="email"
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={loading}
-        />
+      {/* 🌌 Background */}
+      <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#0b1120] via-[#111827] to-[#020617]">
 
-        <input
-          className="input"
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={loading}
-        />
+        {/* 💎 Glass Signup Card */}
+        <div className="w-full max-w-md p-8 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl">
 
-        <select
-          className="input"
-          onChange={(e) => setRole(e.target.value)}
-          disabled={loading}
-        >
-          <option value="buyer">Buyer</option>
-          <option value="seller">Seller</option>
-        </select>
+          {/* Heading */}
+          <h2 className="text-3xl font-bold text-center text-white mb-1">
+            Create Account 🚀
+          </h2>
 
-        <button
-          onClick={handleSignup}
-          disabled={loading}
-          className="btn w-full"
-        >
-          {loading ? "Creating account..." : "Sign Up"}
-        </button>
+          <p className="text-center text-gray-400 mb-6">
+            Join RoleCart and start your journey
+          </p>
 
-        <p
-          className="text-center text-sm text-blue-400 hover:underline cursor-pointer pt-4"
-          onClick={() => navigate("/login")}
-        >
-          Already have an account? Login
-        </p>
+          {/* EMAIL */}
+          <input
+            className="w-full px-4 py-3 mb-4 rounded-xl bg-[#0f172a] border border-[#1f2937] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+            placeholder="Email"
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
+            autoComplete="email"
+          />
+
+          {/* PASSWORD */}
+          <input
+            className="w-full px-4 py-3 mb-4 rounded-xl bg-[#0f172a] border border-[#1f2937] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+            type="password"
+            placeholder="Password"
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+          />
+
+          {/* ROLE SELECT */}
+          <select
+            className="w-full px-4 py-3 mb-5 rounded-xl bg-[#0f172a] border border-[#1f2937] text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 transition cursor-pointer"
+            onChange={(e) => setRole(e.target.value)}
+            disabled={loading}
+          >
+            <option value="buyer">🛒 Buyer</option>
+            <option value="seller">🏪 Seller</option>
+          </select>
+
+          {/* SIGNUP BUTTON */}
+          <button
+            onClick={handleSignup}
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-semibold hover:opacity-90 transition shadow-lg mb-4"
+          >
+            {loading ? "Creating account..." : "Sign Up"}
+          </button>
+
+          {/* LOGIN LINK */}
+          <p
+            className="text-center text-sm text-cyan-400 hover:underline cursor-pointer pt-3"
+            onClick={() => navigate("/login")}
+          >
+            Already have an account? Login
+          </p>
+
+        </div>
       </div>
-    </div>
+    </>
   )
 }
-
-
