@@ -146,7 +146,8 @@ export default function Navbar({ onMenuClick }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 bg-[#020617]/80 backdrop-blur border-b border-white/10">
+    //<header className="sticky top-0 z-50 bg-[#0b102b]/80 backdrop-blur-xl border-b border-white/10 shadow-lg">
+<header className="sticky top-0 z-50 bg-[#0b102b]/80 backdrop-blur-xl border-b border-white/10 shadow-lg">
 
       <div className="max-w-7xl mx-auto px-4">
 

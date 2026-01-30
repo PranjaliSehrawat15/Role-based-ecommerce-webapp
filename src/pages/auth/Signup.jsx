@@ -47,7 +47,7 @@ export default function Signup() {
       `}</style>
 
       {/* 🌌 Background */}
-      <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#0b1120] via-[#111827] to-[#020617]">
+      <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#0b1120] via-[#111827] to-[#020617] relative overflow-hidden">
         {/* bgGlow */}
           <div className="absolute w-[350px] h-[350px] bg-purple-600/30 blur-3xl rounded-full top-[-100px] left-[-100px]"></div>
       <div className="absolute w-[300px] h-[300px] bg-cyan-500/20 blur-3xl rounded-full bottom-[-100px] right-[-100px]"></div>

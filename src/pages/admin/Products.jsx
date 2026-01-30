@@ -66,8 +66,8 @@ export default function Products() {
           </div>
 
           {products.length === 0 ? (
-            <div className="bg-white rounded-xl p-10 text-center shadow">
-              <h3 className="text-xl font-bold mb-2">No products yet</h3>
+            <div className=" backdrop-blur-xl border-white/20 rounded-xl p-10 text-center shadow">
+              <h3 className="text-xl text-white/90 font-bold mb-2">No products yet</h3>
               <button
                 onClick={() => navigate("/admin/products/new")}
                 className="btn"
@@ -80,7 +80,16 @@ export default function Products() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
               {products.map(p => (
-                <div key={p.id} className="bg-white rounded-xl shadow overflow-hidden">
+               // <div key={p.id} className="bg-white rounded-xl shadow overflow-hidden">
+                <div key={p.id} className="
+backdrop-blur-xl 
+border border-white/20 
+rounded-2xl 
+shadow-xl 
+p-6
+hover:border-cyan-400/40
+hover:shadow-[0_0_25px_rgba(0,212,255,0.25)]
+transition">
 
                   <img
                     src={p.image || "https://via.placeholder.com/300"}
@@ -88,9 +97,9 @@ export default function Products() {
                   />
 
                   <div className="p-4">
-                    <h3 className="font-bold">{p.name}</h3>
-                    <p className="text-sm text-gray-500">{p.category}</p>
-                    <p className="font-bold mt-2">₹{p.price}</p>
+                    <h3 className="text-white/90 font-bold">{p.name}</h3>
+                    <p className="text-sm text-gray-400">{p.category}</p>
+                    <p className="text-white/90 font-bold mt-2">₹{p.price}</p>
 
                     <div className="flex gap-2 mt-4">
 
