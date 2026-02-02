@@ -16,6 +16,7 @@ import {
 import { db } from "../../firebase/firebase"
 import { useAuth } from "../../context/AuthContext"
 import Navbar from "../../components/layout/Navbar"
+import Sidebar from "../../components/layout/Sidebar"
 
 export default function AddEditProducts() {
   const { id } = useParams()
@@ -25,6 +26,7 @@ export default function AddEditProducts() {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState([])
   const [newCategory, setNewCategory] = useState("")
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const [form, setForm] = useState({
     name: "",
@@ -185,19 +187,31 @@ export default function AddEditProducts() {
 
   return (
     <>
-      <Navbar />
+      <Navbar onMenuClick={() => setSidebarOpen(true)} />
 
-      <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-4xl font-bold mb-8 text-gray-900">
+<div className="flex relative">
+
+  <Sidebar
+    mobileOpen={sidebarOpen}
+    close={() => setSidebarOpen(false)}
+  />
+
+  <div className="flex-1 min-h-screen bg-[#0a0e27] flex justify-center items-start pt-10 px-4">
+
+      <div className="w-full max-w-3xl">
+
+        <h1 className="text-4xl font-bold mb-8 text-white">
+
           {id ? "✏️ Edit Product" : "➕ Add Product"}
         </h1>
 
-        <div className="card p-8">
+        <div className="bg-[#0b102b]/70 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_0_40px_rgba(0,0,0,0.6)] p-8">
+
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Product Name</label>
               <input className="input" placeholder="e.g., iPhone 15 Pro"
                 value={form.name}
                 onChange={e => setForm({ ...form, name: e.target.value })}
@@ -207,7 +221,7 @@ export default function AddEditProducts() {
             {/* Price & Stock Row */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Price (₹)</label>
                 <input className="input" type="number" placeholder="999"
                   value={form.price}
                   onChange={e => setForm({ ...form, price: e.target.value })}
@@ -215,7 +229,7 @@ export default function AddEditProducts() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Stock</label>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Stock</label>
                 <input className="input" type="number" placeholder="10"
                   value={form.stock}
                   onChange={e => setForm({ ...form, stock: e.target.value })}
@@ -225,7 +239,7 @@ export default function AddEditProducts() {
 
             {/* Category Section */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
               
               {/* Category Select */}
               <select
@@ -248,8 +262,8 @@ export default function AddEditProducts() {
               </select>
 
               {/* Add New Category */}
-              <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl">
-                <p className="text-xs font-medium text-gray-600 mb-2">Add New Category</p>
+            <div className="p-4 bg-[#0f172a]/70 backdrop-blur border border-white/10 rounded-xl">
+                <p className="text-xs font-medium text-gray-300 mb-2">Add New Category</p>
                 <div className="flex gap-2">
                   <input
                     className="input flex-1"
@@ -270,7 +284,7 @@ export default function AddEditProducts() {
 
             {/* Short Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Short Description</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Short Description</label>
               <input className="input" placeholder="Brief product summary"
                 value={form.shortDesc}
                 onChange={e => setForm({ ...form, shortDesc: e.target.value })} />
@@ -278,7 +292,7 @@ export default function AddEditProducts() {
 
             {/* Full Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Description</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Full Description</label>
               <textarea className="input" rows="4" placeholder="Detailed product information"
                 value={form.fullDesc}
                 onChange={e => setForm({ ...form, fullDesc: e.target.value })} />
@@ -286,7 +300,7 @@ export default function AddEditProducts() {
 
             {/* Specs */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Specifications (comma-separated)</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Specifications (comma-separated)</label>
               <textarea className="input" rows="2" placeholder="e.g., 128GB Storage, 6.1 inch Display, 48MP Camera"
                 value={form.specs}
                 onChange={e => setForm({ ...form, specs: e.target.value })} />
@@ -294,16 +308,16 @@ export default function AddEditProducts() {
 
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Product Image</label>
               <input type="file" accept="image/*"
                 onChange={e => setFile(e.target.files[0])}
-                className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black file:text-white hover:file:bg-gray-800"
+                className="block w-full text-sm text-gray-300 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-black file:text-white hover:file:bg-gray-800"
               />
 
               {form.image && (
                 <div className="mt-4">
-                  <p className="text-xs text-gray-600 mb-2">Current Image:</p>
-                  <img src={form.image} alt="" className="h-32 w-32 object-cover rounded-lg border border-gray-200" />
+                  <p className="text-xs text-gray-300 mb-2">Current Image:</p>
+                  <img src={form.image} alt="" className="h-32 w-32 object-cover rounded-lg border border-white/10" />
                 </div>
               )}
             </div>
@@ -320,6 +334,8 @@ export default function AddEditProducts() {
             </button>
           </form>
         </div>
+      </div>
+      </div>
       </div>
     </>
   )
