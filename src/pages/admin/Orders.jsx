@@ -388,7 +388,7 @@ export default function Orders() {
                       onClick={() => updateStatus(order.id, "placed")}
                       className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all ${
                         order.status === "placed"
-                          ? "bg-gradient-to-r from-yellow-400 to-yellow-500 text-black shadow-lg"
+                          ? "bg-linear-to-r from-yellow-400 to-yellow-500 text-black shadow-lg"
                           : "bg-[#1a1f3a] text-gray-300 hover:bg-[#2d3561]"
                       }`}
                     >
@@ -400,7 +400,7 @@ export default function Orders() {
                       onClick={() => updateStatus(order.id, "shipped")}
                       className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all ${
                         order.status === "shipped"
-                          ? "bg-gradient-to-r from-blue-400 to-cyan-400 text-black shadow-lg"
+                          ? "bg-linear-to-r from-blue-400 to-cyan-400 text-black shadow-lg"
                           : "bg-[#1a1f3a] text-gray-300 hover:bg-[#2d3561]"
                       }`}
                     >
@@ -412,7 +412,7 @@ export default function Orders() {
                       onClick={() => updateStatus(order.id, "delivered")}
                       className={`px-5 py-2 rounded-xl font-semibold text-sm transition-all ${
                         order.status === "delivered"
-                          ? "bg-gradient-to-r from-green-400 to-emerald-400 text-black shadow-lg"
+                          ? "bg-linear-to-r from-green-400 to-emerald-400 text-black shadow-lg"
                           : "bg-[#1a1f3a] text-gray-300 hover:bg-[#2d3561]"
                       }`}
                     >

@@ -165,13 +165,12 @@ export default function Navbar({ onMenuClick }) {
               </button>
             )}
 
-            <Link to="/" className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center">
                 ⚡
               </div>
               <span className="font-bold text-white">RoleCart</span>
-            </Link>
-
+            </div>
           </div>
 
           {/* CENTER */}

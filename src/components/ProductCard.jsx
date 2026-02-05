@@ -51,9 +51,9 @@ export default function ProductCard({ product }) {
 
         {/* Sale Badge */}
         <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="bg-[#00d4ff] text-[#0a0e27] text-xs font-bold px-3 py-1.5 rounded-lg">
+          {/* <span className="bg-[#00d4ff] text-[#0a0e27] text-xs font-bold px-3 py-1.5 rounded-lg">
             ⭐ Premium
-          </span>
+          </span> */}
         </div>
       </div>
 
