@@ -4,6 +4,9 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import Navbar from "../../components/layout/Navbar";
 import ProductCard from "../../components/ProductCard";
+import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+
 
 const normalize = (v) => v?.trim().toLowerCase();
 
@@ -275,11 +278,49 @@ export default function Store() {
           <div className="border-t border-[#3f4663] pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <p className="text-[#9ca3af] text-sm">© 2026 RoleCart. All rights reserved.</p>
-              <div className="flex gap-6 mt-4 md:mt-0">
+              {/* <div className="flex gap-6 mt-4 md:mt-0">
                 <a href="#" className="text-[#9ca3af] hover:text-[#00d4ff] transition-colors">📱 Facebook</a>
                 <a href="#" className="text-[#9ca3af] hover:text-[#00d4ff] transition-colors">𝕏 Twitter</a>
                 <a href="#" className="text-[#9ca3af] hover:text-[#00d4ff] transition-colors">📷 Instagram</a>
-              </div>
+              </div> */}
+
+              <div className="flex items-center gap-6 mt-4 md:mt-0">
+
+  {/* Facebook */}
+  <a
+    href="https://facebook.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-2 text-[#9ca3af] hover:text-[#00d4ff] transition-colors group"
+  >
+    <FaFacebookF className="text-lg group-hover:scale-110 transition" />
+    <span className="hidden sm:inline">Facebook</span>
+  </a>
+
+  {/* Twitter / X */}
+  <a
+    href="https://twitter.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-2 text-[#9ca3af] hover:text-[#00d4ff] transition-colors group"
+  >
+    <FaXTwitter className="text-lg group-hover:scale-110 transition" />
+    <span className="hidden sm:inline">Twitter</span>
+  </a>
+
+  {/* Instagram */}
+  <a
+    href="https://instagram.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-2 text-[#9ca3af] hover:text-[#00d4ff] transition-colors group"
+  >
+    <FaInstagram className="text-lg group-hover:scale-110 transition" />
+    <span className="hidden sm:inline">Instagram</span>
+  </a>
+
+</div>
+
             </div>
           </div>
         </div>
