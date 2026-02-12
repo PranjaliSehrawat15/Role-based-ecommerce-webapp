@@ -65,58 +65,94 @@ export default function Store() {
     return list;
   }, [products, category, sort]);
 
+  /* Loading Skeleton */
+  const ProductSkeleton = () => (
+    <div className="animate-pulse">
+      <div className="bg-[#1a1f3a] rounded-lg h-48 mb-4"></div>
+      <div className="bg-[#1a1f3a] rounded h-4 mb-3"></div>
+      <div className="bg-[#1a1f3a] rounded h-4 mb-4 w-2/3"></div>
+      <div className="flex gap-2">
+        <div className="bg-[#1a1f3a] rounded h-10 flex-1"></div>
+        <div className="bg-[#1a1f3a] rounded h-10 flex-1"></div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <Navbar />
 
-      {/* 🎨 HERO SECTION */}
-      <div className="bg-linear-to-br from-[#0a0e27] via-[#1a1f3a] to-[#0a0e27] border-b border-[#3f4663]">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#e5e7eb] mb-3">
-            ⚡ Discover Premium Tech
+      {/* 🎨 ENHANCED HERO SECTION */}
+      <div className="bg-gradient-to-br from-[#0a0e27] via-[#1a1f3a] to-[#0a0e27] border-b-2 border-[#3f4663] relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute -top-20 right-0 w-80 h-80 bg-[#7c3aed] rounded-full blur-3xl -mr-40 opacity-60"></div>
+          <div className="absolute -bottom-20 left-0 w-80 h-80 bg-[#06b6d4] rounded-full blur-3xl -ml-40 opacity-60"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-6 py-24 relative z-10">
+          <div className="mb-8 inline-block">
+            <span className="px-5 py-2.5 bg-gradient-to-r from-[#7c3aed]/30 to-[#06b6d4]/30 border-2 border-[#7c3aed] rounded-full text-[#00d4ff] text-sm font-bold tracking-wide uppercase">
+              ⚡ Premium Collection
+            </span>
+          </div>
+          <h1 className="text-6xl md:text-7xl font-black text-[#e5e7eb] mb-6 leading-tight">
+            Discover <span className="bg-gradient-to-r from-[#06b6d4] via-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">Premium Tech</span>
           </h1>
-          <p className="text-lg text-[#9ca3af] max-w-2xl">
-            Explore our curated collection of cutting-edge electronics. Shop by category or find your perfect gadget.
+          <p className="text-lg text-[#9ca3af] max-w-3xl mb-10 leading-relaxed">
+            Explore our meticulously curated collection of cutting-edge electronics and gadgets. Find the perfect device that matches your lifestyle and tech aspirations.
           </p>
+          <button
+            onClick={() => {
+              setCategory("all");
+              document.querySelector(".products-section")?.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="px-8 py-4 bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] text-white rounded-xl font-bold hover:shadow-2xl hover:shadow-[#06b6d4]/60 transition-all hover:scale-105 text-lg inline-flex items-center gap-2"
+          >
+            <span>🛍️</span>
+            Shop Now
+          </button>
         </div>
       </div>
 
-      {/* CATEGORY SHOWCASE (Kreo "Go Beyond" Style Carousel) */}
+      {/* CATEGORY SHOWCASE (Enhanced) */}
       {!loading && categories.filter(c => c !== "all").length > 0 && (
-        <div className="bg-[#0a0e27] border-b border-[#3f4663] py-16 overflow-hidden">
+        <div className="bg-[#0a0e27] border-b-2 border-[#3f4663] py-24 overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
-            <h2 className="text-3xl font-bold text-[#e5e7eb] mb-2">Go Beyond Limits</h2>
-            <p className="text-[#9ca3af] mb-10">Explore our premium categories</p>
+            <div className="mb-16">
+              <h2 className="text-5xl font-black text-[#e5e7eb] mb-4">🎯 Shop By Category</h2>
+              <p className="text-[#9ca3af] text-xl max-w-2xl">Explore our premium categories and find exactly what you're looking for</p>
+            </div>
             
             {/* Horizontal Carousel */}
             <div className="relative">
-              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 animate-scroll">
+              <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
                 {[...categories.filter(c => c !== "all"), ...categories.filter(c => c !== "all")].map((cat, index) => {
                   const catProducts = products.filter(p => normalize(p.category) === normalize(cat));
                   return (
                     <button
                       key={`${cat}-${index}`}
                       onClick={() => setCategory(cat)}
-                      className="group relative overflow-hidden bg-[#1a1f3a] border border-[#3f4663] rounded-lg hover:border-[#00d4ff] transition-all duration-500 p-8 text-left hover:glow-cyan min-w-[280px] flex-shrink-0 hover:scale-105 transform"
+                      className="group relative overflow-hidden bg-gradient-to-br from-[#1a1f3a] to-[#2d3561] border-2 border-[#3f4663] rounded-2xl hover:border-[#06b6d4] transition-all duration-500 px-8 py-10 text-left hover:shadow-2xl hover:shadow-[#06b6d4]/40 min-w-72 shrink-0 hover:scale-110 transform\"
                     >
                       {/* Background Gradient */}
-                      <div className="absolute inset-0 bg-linear-to-br from-[#7c3aed] to-[#06b6d4] opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#7c3aed] to-[#06b6d4] opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
                       
                       {/* Content */}
                       <div className="relative z-10">
-                        <div className="text-5xl mb-3 group-hover:scale-110 transition-transform duration-500 inline-block animate-pulse">
-                          {cat === "Electronics" && "⚡"}
-                          {cat === "Keyboards" && "⌨️"}
-                          {cat === "Mouse" && "🖱️"}
-                          {cat === "Monitors" && "🖥️"}
-                          {cat === "Headphones" && "🎧"}
-                          {cat === "Accessories" && "🔌"}
-                          {!["Electronics", "Keyboards", "Mouse", "Monitors", "Headphones", "Accessories"].includes(cat) && "📦"}
+                        <div className="text-6xl mb-4 group-hover:scale-125 transition-transform duration-500 inline-block">
+                          {cat === "electronics" && "⚡"}
+                          {cat === "keyboards" && "⌨️"}
+                          {cat === "mouse" && "🖱️"}
+                          {cat === "monitors" && "🖥️"}
+                          {cat === "headphones" && "🎧"}
+                          {cat === "accessories" && "🔌"}
+                          {!["electronics", "keyboards", "mouse", "monitors", "headphones", "accessories"].includes(cat) && "📦"}
                         </div>
-                        <h3 className="text-xl font-bold text-[#e5e7eb] capitalize mb-2">{cat}</h3>
-                        <p className="text-[#9ca3af] text-sm">{catProducts.length} product{catProducts.length !== 1 ? "s" : ""}</p>
-                        <div className="mt-4 flex items-center text-[#00d4ff] text-sm font-semibold group-hover:translate-x-2 transition-transform duration-500">
-                          Browse → 
+                        <h3 className="text-2xl font-bold text-[#e5e7eb] capitalize mb-2">{cat}</h3>
+                        <p className="text-[#9ca3af] text-sm mb-4">{catProducts.length} product{catProducts.length !== 1 ? "s" : ""}</p>
+                        <div className="flex items-center text-[#00d4ff] text-sm font-bold group-hover:translate-x-3 transition-transform duration-500">
+                          View All →
                         </div>
                       </div>
                     </button>
@@ -125,24 +161,24 @@ export default function Store() {
               </div>
               
               {/* Gradient Overlays for Smooth Edges */}
-              <div className="absolute left-0 top-0 bottom-0 w-20 bg-linear-to-r from-[#0a0e27] to-transparent pointer-events-none z-10"></div>
-              <div className="absolute right-0 top-0 bottom-0 w-20 bg-linear-to-l from-[#0a0e27] to-transparent pointer-events-none z-10"></div>
+              <div className="absolute left-0 top-0 bottom-4 w-20 bg-gradient-to-r from-[#0a0e27] to-transparent pointer-events-none z-10"></div>
+              <div className="absolute right-0 top-0 bottom-4 w-20 bg-gradient-to-l from-[#0a0e27] to-transparent pointer-events-none z-10"></div>
             </div>
           </div>
         </div>
       )}
 
-      {/* FILTERS SECTION */}
-      <div className="px-6 py-6 bg-[#0a0e27] border-b border-[#3f4663] sticky top-16 z-40 shadow-lg">
+      {/* FILTERS SECTION - Enhanced */}
+      <div className="px-6 py-10 bg-gradient-to-b from-[#0a0e27] to-[#0a0e27]/90 border-b-2 border-[#3f4663] sticky top-[73px] z-40 shadow-2xl backdrop-blur-xl bg-opacity-98">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
             {/* Category Filter */}
-            <div className="flex-1 min-w-50">
-              <label className="block text-xs font-semibold text-[#9ca3af] mb-2 uppercase tracking-wide">📂 Category</label>
+            <div className="flex-1 min-w-56">
+              <label className="block text-xs font-bold text-[#9ca3af] mb-3 uppercase tracking-widest\">📂 Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#1a1f3a] border border-[#3f4663] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00d4ff] focus:border-transparent transition-all font-medium text-[#e5e7eb]"
+                className="w-full px-5 py-3.5 bg-[#1a1f3a] border-2 border-[#3f4663] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#06b6d4] focus:border-[#06b6d4] transition-all font-medium text-[#e5e7eb] hover:border-[#06b6d4] cursor-pointer text-base\"
               >
                 <option value="all">All Categories</option>
                 {categories
@@ -156,12 +192,12 @@ export default function Store() {
             </div>
 
             {/* Price Sort */}
-            <div className="flex-1 min-w-50">
-              <label className="block text-xs font-semibold text-[#9ca3af] mb-2 uppercase tracking-wide">💰 Sort</label>
+            <div className="flex-1 min-w-56">
+              <label className="block text-xs font-bold text-[#9ca3af] mb-3 uppercase tracking-widest\">💰 Sort By</label>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#1a1f3a] border border-[#3f4663] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00d4ff] focus:border-transparent transition-all font-medium text-[#e5e7eb]"
+                className="w-full px-5 py-3.5 bg-[#1a1f3a] border-2 border-[#3f4663] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#06b6d4] focus:border-[#06b6d4] transition-all font-medium text-[#e5e7eb] hover:border-[#06b6d4] cursor-pointer text-base\"
               >
                 <option value="none">All Prices</option>
                 <option value="low">💵 Low → High</option>
@@ -171,10 +207,23 @@ export default function Store() {
 
             {/* Results Count */}
             {!loading && (
-              <div className="flex items-end">
-                <p className="text-sm text-[#9ca3af]">
-                  Showing <span className="font-bold text-[#00d4ff]">{filtered.length}</span> result{filtered.length !== 1 ? "s" : ""}
-                </p>
+              <div className="lg:flex items-end justify-end flex-1 hidden">
+                <div className="bg-gradient-to-r from-[#7c3aed]/25 to-[#06b6d4]/25 border-2 border-[#6ee7b7] rounded-xl px-6 py-4">
+                  <p className="text-sm text-[#e5e7eb] font-medium">
+                    Showing <span className="font-bold text-[#00d4ff] text-lg">{filtered.length}</span> <span className="text-[#9ca3af]">result{filtered.length !== 1 ? "s" : ""}</span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Mobile Results Count */}
+            {!loading && (
+              <div className="lg:hidden w-full">
+                <div className="bg-gradient-to-r from-[#7c3aed]/25 to-[#06b6d4]/25 border-2 border-[#6ee7b7] rounded-xl px-6 py-4">
+                  <p className="text-sm text-[#e5e7eb] font-medium">
+                    Showing <span className="font-bold text-[#00d4ff] text-lg">{filtered.length}</span> result{filtered.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -182,27 +231,29 @@ export default function Store() {
       </div>
 
       {/* PRODUCTS SECTION */}
-      <div className="bg-[#0a0e27] py-12">
+      <div className="bg-[#0a0e27] pt-16 pb-12 products-section">
         <div className="max-w-7xl mx-auto px-6">
           {loading && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="text-6xl mb-4 animate-spin">⏳</div>
-              <p className="text-[#9ca3af] font-medium">Loading products…</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <ProductSkeleton key={i} />
+              ))}
             </div>
           )}
 
           {!loading && filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="text-7xl mb-4">🔍</div>
-              <h3 className="text-2xl font-bold text-[#e5e7eb] mb-2">No products found</h3>
-              <p className="text-[#9ca3af] mb-6">Try adjusting your filters or browse all categories</p>
+            <div className="flex flex-col items-center justify-center py-40">
+              <div className="text-9xl mb-8 opacity-40 animate-pulse\">🔍</div>
+              <h3 className="text-4xl font-black text-[#e5e7eb] mb-4\">No Products Found</h3>
+              <p className="text-[#9ca3af] mb-12 text-lg max-w-2xl text-center leading-relaxed\">Try adjusting your filters or browse all categories to discover amazing products and gadgets.</p>
               <button
                 onClick={() => {
                   setCategory("all")
                   setSort("none")
                 }}
-                className="px-6 py-2.5 bg-linear-to-r from-[#7c3aed] to-[#06b6d4] text-white rounded-lg font-medium hover:shadow-lg hover:shadow-[#00d4ff]/50 transition-all"
+                className="px-8 py-4 bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] text-white rounded-xl font-bold hover:shadow-2xl hover:shadow-[#06b6d4]/60 transition-all hover:scale-105 text-lg inline-flex items-center gap-2\"
               >
+                <span>🏪</span>
                 View All Products
               </button>
             </div>
@@ -221,7 +272,7 @@ export default function Store() {
       </div>
 
       {/* FOOTER SECTION - KEEP AS IS */}
-      <footer className="bg-[#0a0e27] border-t border-[#3f4663] text-[#e5e7eb] mt-20">
+      <footer className="bg-[#0a0e27] border-t border-[#3f4663] text-[#e5e7eb]">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             {/* Brand */}
@@ -278,11 +329,6 @@ export default function Store() {
           <div className="border-t border-[#3f4663] pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <p className="text-[#9ca3af] text-sm">© 2026 RoleCart. All rights reserved.</p>
-              {/* <div className="flex gap-6 mt-4 md:mt-0">
-                <a href="#" className="text-[#9ca3af] hover:text-[#00d4ff] transition-colors">📱 Facebook</a>
-                <a href="#" className="text-[#9ca3af] hover:text-[#00d4ff] transition-colors">𝕏 Twitter</a>
-                <a href="#" className="text-[#9ca3af] hover:text-[#00d4ff] transition-colors">📷 Instagram</a>
-              </div> */}
 
               <div className="flex items-center gap-6 mt-4 md:mt-0">
 

@@ -10,7 +10,7 @@ export default function ProductCard({ product }) {
   return (
     <div className="group flex flex-col h-full bg-[#1a1f3a] rounded-lg overflow-hidden shadow-lg hover:shadow-[0_0_30px_rgba(0,212,255,0.2)] transition-all duration-300 border border-[#3f4663] hover:border-[#00d4ff] hover:glow-cyan">
       {/* Image Container */}
-      <div className="relative overflow-hidden bg-linear-to-br from-[#2d3561] to-[#1a1f3a] shrink-0 aspect-square">
+      <div className="relative overflow-hidden bg-linear-to-br from-[#2d3561] to-[#1a1f3a] shrink-0 h-52">
         <img
           src={product.image || "https://via.placeholder.com/400x300?text=No+Image"}
           alt={product.name}
@@ -58,10 +58,10 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 p-5">
+      <div className="flex flex-col flex-1 p-6 space-y-4">
         {/* Title */}
         <h3
-          className="font-bold text-[#e5e7eb] text-sm group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-[#00d4ff] group-hover:to-[#7c3aed] group-hover:bg-clip-text line-clamp-2 cursor-pointer transition-all duration-300 h-10 leading-5"
+          className="font-bold text-[#e5e7eb] text-base group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-[#00d4ff] group-hover:to-[#7c3aed] group-hover:bg-clip-text line-clamp-2 cursor-pointer transition-all duration-300 leading-6"
           onClick={() => navigate(`/product/${product.id}`)}
           title={product.name}
         >
@@ -70,17 +70,17 @@ export default function ProductCard({ product }) {
 
         {/* Description */}
         {product.shortDesc && (
-          <p className="text-xs text-[#9ca3af] mt-1 line-clamp-1">
+          <p className="text-xs text-[#9ca3af] line-clamp-2 leading-relaxed">
             {product.shortDesc}
           </p>
         )}
 
         {/* Price Section */}
-        <div className="mt-3 mb-4">
+        <div className="pt-2 space-y-2">
           <p className="text-2xl font-bold bg-linear-to-r from-[#00d4ff] to-[#7c3aed] bg-clip-text text-transparent">
             ₹{product.price.toLocaleString("en-IN")}
           </p>
-          <p className="text-xs text-[#9ca3af] mt-1">
+          <p className="text-xs text-[#9ca3af] leading-relaxed">
             {outOfStock ? (
               <span className="text-[#f87171] font-semibold">Currently unavailable</span>
             ) : (
@@ -90,10 +90,10 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-2 mt-auto pt-4 border-t border-[#3f4663]">
+        <div className="flex gap-3 mt-auto pt-6 border-t border-[#3f4663]">
           <button
             onClick={() => navigate(`/product/${product.id}`)}
-            className="flex-1 px-4 py-2.5 text-sm font-semibold text-[#00d4ff] border-2 border-[#00d4ff] rounded-lg hover:bg-[#1a1f3a] hover:shadow-[0_0_10px_rgba(0,212,255,0.3)] transition-all duration-200"
+            className="flex-1 px-4 py-3 text-sm font-semibold text-[#00d4ff] border-2 border-[#00d4ff] rounded-lg hover:bg-[#1a1f3a] hover:shadow-[0_0_10px_rgba(0,212,255,0.3)] transition-all duration-200"
           >
             View Details
           </button>
@@ -101,7 +101,7 @@ export default function ProductCard({ product }) {
           <button
             onClick={() => addToCart(product)}
             disabled={outOfStock}
-            className={`flex-1 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+            className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${
               outOfStock
                 ? "bg-[#3f4663] text-[#9ca3af] cursor-not-allowed"
                 : "bg-linear-to-r from-[#7c3aed] to-[#06b6d4] text-white hover:shadow-lg hover:shadow-[#00d4ff]/50 active:scale-95"
