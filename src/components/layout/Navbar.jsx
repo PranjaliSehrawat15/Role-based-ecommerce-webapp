@@ -220,6 +220,15 @@ export default function Navbar({ onMenuClick }) {
                       👤 Profile
                     </button>
 
+                    {role === "buyer" && (
+                      <button
+                        onClick={() => navigate("/orders")}
+                        className="block w-full px-4 py-2 text-left text-gray-300 hover:bg-white/10"
+                      >
+                        📦 Orders
+                      </button>
+                    )}
+
                     <button
                       onClick={() => {
                         auth.signOut()

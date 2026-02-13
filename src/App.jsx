@@ -14,6 +14,7 @@ import Store from "./pages/buyer/Store"
 import ProductDetails from "./pages/buyer/ProductDetails"
 import Checkout from "./pages/buyer/Checkout"
 import Orders from "./pages/buyer/Orders"
+import OrderConfirmation from "./pages/buyer/OrderConfirmation"
 
 import AdminRoute from "./routes/AdminRoute"
 import BuyerRoute from "./routes/BuyerRoute"
@@ -115,6 +116,15 @@ export default function App() {
         element={
           <BuyerRoute>
             <Checkout />
+          </BuyerRoute>
+        }
+      />
+
+      <Route
+        path="/order-confirmation"
+        element={
+          <BuyerRoute>
+            <OrderConfirmation />
           </BuyerRoute>
         }
       />

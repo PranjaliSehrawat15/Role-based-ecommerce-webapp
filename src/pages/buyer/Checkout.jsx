@@ -33,7 +33,7 @@ export default function Checkout() {
     setLoading(true)
 
     try {
-      await runTransaction(db, async (transaction) => {
+      const orderId = await runTransaction(db, async (transaction) => {
         // STEP 1: READ all product data first
         let sellerId = ""
         const productRefs = []
@@ -87,10 +87,13 @@ export default function Checkout() {
           sellerId,
           createdAt: serverTimestamp()
         })
+
+        // Return the order ID to use after transaction
+        return orderRef.id
       })
 
       clearCart()
-      navigate("/orders")
+      navigate("/order-confirmation", { state: { orderId } })
     } catch (error) {
       console.error("ORDER ERROR:", error)
       alert(error.message)

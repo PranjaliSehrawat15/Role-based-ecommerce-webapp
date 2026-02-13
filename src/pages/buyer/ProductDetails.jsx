@@ -15,6 +15,10 @@ export default function ProductDetails() {
   const [addedToCart, setAddedToCart] = useState(false)
 
   useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
+
+  useEffect(() => {
     const fetchProduct = async () => {
       try {
         const ref = doc(db, "products", id)

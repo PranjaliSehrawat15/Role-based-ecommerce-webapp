@@ -1,117 +1,105 @@
-import { useNavigate } from "react-router-dom"
-import { useCart } from "../context/CartContext"
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 export default function ProductCard({ product }) {
-  const navigate = useNavigate()
-  const { addToCart } = useCart()
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
 
-  const outOfStock = product.stock === 0
+  const stock = Number(product.stock ?? 0);
+  const price = Number(product.price ?? 0);
+  const outOfStock = stock <= 0;
+  const compareAt = Number(product.compareAtPrice ?? Math.round(price * 1.15));
+  const hasDiscount = compareAt > price;
+  const discountPercent = hasDiscount
+    ? Math.max(1, Math.round(((compareAt - price) / compareAt) * 100))
+    : 0;
 
   return (
-    <div className="group flex flex-col h-full bg-[#1a1f3a] rounded-lg overflow-hidden shadow-lg hover:shadow-[0_0_30px_rgba(0,212,255,0.2)] transition-all duration-300 border border-[#3f4663] hover:border-[#00d4ff] hover:glow-cyan">
-      {/* Image Container */}
-      <div className="relative overflow-hidden bg-linear-to-br from-[#2d3561] to-[#1a1f3a] shrink-0 h-52">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#2e4379] bg-[#10183a] shadow-[0_10px_28px_rgba(5,15,40,0.35)] transition duration-300 hover:-translate-y-1 hover:border-[#12b8ff] hover:shadow-[0_14px_36px_rgba(8,24,63,0.55)]">
+      <div className="relative h-56 shrink-0 overflow-hidden bg-[#0d1533]">
         <img
-          src={product.image || "https://via.placeholder.com/400x300?text=No+Image"}
+          src={product.image || "https://via.placeholder.com/600x400?text=No+Image"}
           alt={product.name}
-          className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700 cursor-pointer"
+          className="h-full w-full cursor-pointer object-cover transition duration-500 group-hover:scale-105"
           onClick={() => navigate(`/product/${product.id}`)}
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#06102a]/70 via-transparent to-transparent" />
 
-        {/* Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-[#00d4ff] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-
-        {/* Out of Stock Overlay */}
-        {outOfStock && (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-            <div className="text-center">
-              <p className="text-white font-bold text-lg">Out of Stock</p>
-              <p className="text-white/80 text-xs mt-1">Coming soon</p>
-            </div>
-          </div>
+        {hasDiscount && (
+          <span className="absolute left-3 top-3 rounded-md bg-[#ff7d44] px-2.5 py-1 text-xs font-bold text-white">
+            {discountPercent}% OFF
+          </span>
         )}
 
-        {/* Category Badge */}
         {product.category && (
-          <div className="absolute top-4 left-4">
-            <span className="bg-linear-to-r from-[#7c3aed] to-[#06b6d4] text-white text-xs font-semibold px-3 py-1.5 rounded-lg capitalize shadow-md">
-              {product.category}
-            </span>
-          </div>
+          <span className="absolute right-3 top-3 rounded-md border border-[#3a5697] bg-[#13224d]/90 px-2.5 py-1 text-xs font-semibold capitalize text-[#d9e8ff]">
+            {product.category}
+          </span>
         )}
 
-        {/* Stock Badge */}
-        {!outOfStock && product.stock < 5 && (
-          <div className="absolute top-4 right-4">
-            <span className="bg-[#f59e0b] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-md animate-pulse">
-              Only {product.stock} left
-            </span>
-          </div>
+        {!outOfStock && stock < 5 && (
+          <span className="absolute bottom-3 left-3 rounded-md bg-[#ffd84a] px-2.5 py-1 text-xs font-bold text-[#3d3200]">
+            Only {stock} left
+          </span>
         )}
-
-        {/* Sale Badge */}
-        <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          {/* <span className="bg-[#00d4ff] text-[#0a0e27] text-xs font-bold px-3 py-1.5 rounded-lg">
-            ⭐ Premium
-          </span> */}
-        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col flex-1 p-6 space-y-4">
-        {/* Title */}
+      <div className="flex flex-1 flex-col p-5">
         <h3
-          className="font-bold text-[#e5e7eb] text-base group-hover:text-transparent group-hover:bg-linear-to-r group-hover:from-[#00d4ff] group-hover:to-[#7c3aed] group-hover:bg-clip-text line-clamp-2 cursor-pointer transition-all duration-300 leading-6"
+          className="line-clamp-2 cursor-pointer text-base font-bold leading-6 text-[#e8efff] transition group-hover:text-[#90dcff]"
           onClick={() => navigate(`/product/${product.id}`)}
           title={product.name}
         >
           {product.name}
         </h3>
 
-        {/* Description */}
         {product.shortDesc && (
-          <p className="text-xs text-[#9ca3af] line-clamp-2 leading-relaxed">
+          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#99addc]">
             {product.shortDesc}
           </p>
         )}
 
-        {/* Price Section */}
-        <div className="pt-2 space-y-2">
-          <p className="text-2xl font-bold bg-linear-to-r from-[#00d4ff] to-[#7c3aed] bg-clip-text text-transparent">
-            ₹{product.price.toLocaleString("en-IN")}
-          </p>
-          <p className="text-xs text-[#9ca3af] leading-relaxed">
+        <div className="mt-4">
+          <div className="flex items-end gap-2">
+            <p className="text-2xl font-black text-[#d9ebff]">
+              Rs {price.toLocaleString("en-IN")}
+            </p>
+            {hasDiscount && (
+              <p className="pb-0.5 text-sm text-[#8ca2d7] line-through">
+                Rs {compareAt.toLocaleString("en-IN")}
+              </p>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-[#8ea6d8]">
             {outOfStock ? (
-              <span className="text-[#f87171] font-semibold">Currently unavailable</span>
+              <span className="font-semibold text-[#f49292]">Currently unavailable</span>
             ) : (
-              <span className="text-[#6ee7b7] font-medium">✓ In stock ({product.stock} available)</span>
+              <span>In stock ({stock} available)</span>
             )}
           </p>
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3 mt-auto pt-6 border-t border-[#3f4663]">
+        <div className="mt-auto grid grid-cols-2 gap-3 pt-5">
           <button
             onClick={() => navigate(`/product/${product.id}`)}
-            className="flex-1 px-4 py-3 text-sm font-semibold text-[#00d4ff] border-2 border-[#00d4ff] rounded-lg hover:bg-[#1a1f3a] hover:shadow-[0_0_10px_rgba(0,212,255,0.3)] transition-all duration-200"
+            className="rounded-lg border border-[#35508b] bg-[#0f1a3c] px-3 py-2.5 text-sm font-semibold text-[#c2d4ff] transition hover:border-[#4a69b8] hover:text-white"
           >
-            View Details
+            Details
           </button>
 
           <button
             onClick={() => addToCart(product)}
             disabled={outOfStock}
-            className={`flex-1 px-4 py-3 text-sm font-semibold rounded-lg transition-all duration-200 ${
+            className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
               outOfStock
-                ? "bg-[#3f4663] text-[#9ca3af] cursor-not-allowed"
-                : "bg-linear-to-r from-[#7c3aed] to-[#06b6d4] text-white hover:shadow-lg hover:shadow-[#00d4ff]/50 active:scale-95"
+                ? "cursor-not-allowed bg-[#2b3962] text-[#8398c8]"
+                : "bg-[#11b6ff] text-[#04132e] hover:bg-[#3cc5ff]"
             }`}
           >
-            {outOfStock ? "Unavailable" : "🛍️ Add to Cart"}
+            {outOfStock ? "Unavailable" : "Add to cart"}
           </button>
         </div>
       </div>
-    </div>
-  )
+    </article>
+  );
 }
-
