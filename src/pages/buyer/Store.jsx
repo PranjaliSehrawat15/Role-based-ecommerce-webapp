@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
@@ -19,6 +20,7 @@ const categoryMeta = {
 };
 
 export default function Store() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("none");
@@ -154,27 +156,36 @@ export default function Store() {
                 <button
                   key={item.id}
                   onClick={() => setCategory(item.id)}
-                  className="rounded-2xl border border-[#2b3d75] bg-[#0f1838] p-5 text-left transition hover:-translate-y-0.5 hover:border-[#12b8ff] hover:shadow-[0_14px_30px_rgba(8,21,56,0.6)]"
+                  className="group rounded-2xl border border-[#2b3d75] bg-[#0f1838] p-5 text-left transition hover:-translate-y-1 hover:border-[#12b8ff] hover:shadow-[0_20px_40px_rgba(18,184,255,0.15)]"
                 >
-                  <p className="text-2xl">{categoryMeta[item.id]?.icon || "📦"}</p>
-                  <p className="mt-3 text-xl font-bold capitalize">{item.id}</p>
+                  <div className="mb-3 text-3xl transition group-hover:scale-110">{categoryMeta[item.id]?.icon || "📦"}</div>
+                  <p className="text-xl font-bold capitalize text-white">{item.id}</p>
                   <p className="mt-1 text-sm text-[#95a8d8]">
                     {item.count} product{item.count !== 1 ? "s" : ""}
                   </p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#60d8ff] opacity-0 transition group-hover:opacity-100">
+                    Browse now →
+                  </p>
                 </button>
               ))}
-              <div className="rounded-2xl border border-[#245f75] bg-gradient-to-br from-[#10314e] to-[#111a3e] p-5">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#8bdcff]">
-                  Weekly deal
+              <div className="group rounded-2xl border border-[#12b8ff]/30 bg-linear-to-br from-[#0a2540] via-[#0f3460] to-[#051a33] p-6 shadow-lg shadow-[#12b8ff]/10 overflow-hidden relative">
+                <div className="absolute inset-0 bg-linear-to-br from-[#12b8ff]/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
+                <p className="relative text-xs font-bold uppercase tracking-[0.16em] text-[#8bdcff]">
+                  ⏰ Limited Offer
                 </p>
-                <p className="mt-2 text-2xl font-black leading-tight">
-                  Up to 25% off on selected accessories
+                <p className="relative mt-3 text-xl font-black leading-tight text-white">
+                  Exclusive deals on premium picks
+                </p>
+                <p className="relative mt-2 text-sm text-[#9fb2e6]">
+                  Save up to 25% on curated selections
                 </p>
                 <button
-                  onClick={() => setCategory("accessories")}
-                  className="mt-4 text-sm font-semibold text-[#8bdcff] transition hover:text-white"
+                  onClick={() => navigate("/offers")}
+                  // className="relative mt-5 inline-block text-sm font-bold text-[#12b8ff] transition hover:text-[#60d8ff] hover:translate-x-1"
+  className="relative mt-5 inline-block text-sm font-bold text-[#12b8ff] transition hover:text-[#60d8ff] hover:translate-x-1"
+
                 >
-                  Browse deals →
+                  View offers →
                 </button>
               </div>
             </div>

@@ -15,6 +15,7 @@ import ProductDetails from "./pages/buyer/ProductDetails"
 import Checkout from "./pages/buyer/Checkout"
 import Orders from "./pages/buyer/Orders"
 import OrderConfirmation from "./pages/buyer/OrderConfirmation"
+import Offers from "./pages/buyer/Offers"   
 
 import AdminRoute from "./routes/AdminRoute"
 import BuyerRoute from "./routes/BuyerRoute"
@@ -39,22 +40,15 @@ export default function App() {
           </AdminRoute>
         }
       />
+
       <Route
-  path="/buyer-dashboard"
-  element={
-    <BuyerRoute>
-      <Store />
-    </BuyerRoute>
-  }
-/>
-<Route
-  path="/seller-dashboard"
-  element={
-    <AdminRoute>
-      <Dashboard />
-    </AdminRoute>
-  }
-/>
+        path="/seller-dashboard"
+        element={
+          <AdminRoute>
+            <Dashboard />
+          </AdminRoute>
+        }
+      />
 
       <Route
         path="/admin/products"
@@ -94,10 +88,29 @@ export default function App() {
 
       {/* Buyer */}
       <Route
+        path="/buyer-dashboard"
+        element={
+          <BuyerRoute>
+            <Store />
+          </BuyerRoute>
+        }
+      />
+
+      <Route
         path="/store"
         element={
           <BuyerRoute>
             <Store />
+          </BuyerRoute>
+        }
+      />
+
+      {/* ✅ FIXED OFFERS ROUTE */}
+      <Route
+        path="/offers"
+        element={
+          <BuyerRoute>
+            <Offers />
           </BuyerRoute>
         }
       />
@@ -138,6 +151,5 @@ export default function App() {
         }
       />
     </Routes>
-    
   )
 }
